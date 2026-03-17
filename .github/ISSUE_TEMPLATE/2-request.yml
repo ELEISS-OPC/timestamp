@@ -1,0 +1,38 @@
+name: "🚀 Request"
+title: "[REQUEST]: "
+labels: ["request"]
+description: "Request a feature or change."
+body:
+  - type: input
+    id: role
+    attributes:
+      label: Intended user
+      description: Who needs this?
+      placeholder: "ex. Mobile Phone User"
+    validations:
+      required: true
+
+  - type: textarea
+    id: usecases
+    attributes:
+      label: Usescases / Benefits
+      description: How does this help the user?
+      placeholder: "ex. I save time navigating the user interface"
+    validations:
+      required: true
+
+  - type: textarea
+    id: need
+    attributes:
+      label: Description
+      description: Details of the request for the feature or change.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Confirmation for duplicate requests
+      options:
+        - label: I confirm that I have checked there are no existing requests for duplicates.
+          required: true

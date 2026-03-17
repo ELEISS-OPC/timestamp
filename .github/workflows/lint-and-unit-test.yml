@@ -1,0 +1,50 @@
+name: Perform linting and unit tests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Install the latest version of uv
+      uses: astral-sh/setup-uv@v6
+
+    - name: Install dependencies with uv
+      run: |
+        uv venv .venv
+        source .venv/bin/activate
+        uv sync
+
+    - name: Lint with ruff
+      run: |
+        source .venv/bin/activate
+        uv run ruff format --check
+        uv run ruff check
+
+    - name: Test with pytest
+      env:
+        DATABASE_URL: "sqlite:///:memory:"
+        MODE: "testing"
+        JWT_SECRET_KEY: 4e9db3a3f86d82cb45f552b9e24e7a652fbb5d3565a3f60a798f904cee6b235b
+      run: |
+        source .venv/bin/activate
+        uv run pytest tests
