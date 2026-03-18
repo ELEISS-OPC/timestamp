@@ -15,6 +15,7 @@ PYTHON_INTERPRETER = python
 .PHONY: requirements
 requirements:
 	@uv sync
+	@cp .local.dev.env.example .local.dev.env
 
 
 ## Run development server
