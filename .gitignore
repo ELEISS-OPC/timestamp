@@ -16,3 +16,6 @@ docs/.cache
 .pytest_cache/
 htmlcov/
 .coverage
+
+# .env files
+.local.dev.env

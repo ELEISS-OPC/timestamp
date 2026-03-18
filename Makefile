@@ -20,7 +20,16 @@ requirements:
 ## Run development server
 .PHONY: dev
 dev:
-	uv run fastapi dev timestamp/main.py --host 0.0.0.0 --port 7000
+	@docker compose -f docker-compose.local.dev.yml down
+	@docker compose --env-file .local.dev.env -f docker-compose.local.dev.yml up --build -d
+	@sleep 3
+	@uv run fastapi dev timestamp/main.py
+
+
+# Stop development server
+.PHONY: dev-down
+dev-down:
+	@docker compose -f docker-compose.local.dev.yml down
 
 
 ## Run mkdocs local server
