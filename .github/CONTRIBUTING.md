@@ -56,3 +56,7 @@ The coverage report is printed on the console and is also generated as an HTML f
 ├── Makefile            # Makefile with convenience commands like `make test` or `make format`
 └── pyproject.toml      # Dependencies list and project configuration
 ```
+
+# Artifacts
+
+Entity Relationship Diagram: https://drive.google.com/file/d/1ypSts5QzvvkZtc5MdJz0uwfrXS_VTBOm/view
