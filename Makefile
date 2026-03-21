@@ -15,14 +15,14 @@ PYTHON_INTERPRETER = python
 .PHONY: requirements
 requirements:
 	@uv sync
-	@cp .local.dev.env.example .local.dev.env
+	@cp .local.dev.env.example .env
 
 
 ## Run development server
 .PHONY: dev
 dev:
 	@docker compose -f docker-compose.local.dev.yml down
-	@docker compose --env-file .local.dev.env -f docker-compose.local.dev.yml up --build -d
+	@docker compose --env-file .env -f docker-compose.local.dev.yml up --build -d
 	@sleep 3
 	@uv run fastapi dev timestamp/main.py
 
