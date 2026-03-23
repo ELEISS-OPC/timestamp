@@ -19,3 +19,4 @@ htmlcov/
 
 # .env files
 .local.dev.env
+*.env
