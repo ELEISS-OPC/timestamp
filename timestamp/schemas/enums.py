@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Role(str, Enum):
+    PUBLIC = 0
     EMPLOYEE = 1
     OFFICER = 2
     ADMIN = 3
