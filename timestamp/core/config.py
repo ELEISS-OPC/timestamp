@@ -90,5 +90,38 @@ class Environment:
         timezone = os.getenv("TIMEZONE", "Asia/Manila")
         return timezone
 
+    @property
+    def S3_ENDPOINT_URL(self) -> str:
+        endpoint_url = os.getenv("S3_ENDPOINT_URL")
+        if endpoint_url is None:
+            raise EnvironmentError("S3_ENDPOINT_URL environment variable is not set.")
+        return endpoint_url
+
+    @property
+    def S3_ACCESS_KEY(self) -> str:
+        access_key = os.getenv("S3_ACCESS_KEY")
+        if access_key is None:
+            raise EnvironmentError("S3_ACCESS_KEY environment variable is not set.")
+        return access_key
+
+    @property
+    def S3_SECRET_KEY(self) -> str:
+        secret_key = os.getenv("S3_SECRET_KEY")
+        if secret_key is None:
+            raise EnvironmentError("S3_SECRET_KEY environment variable is not set.")
+        return secret_key
+
+    @property
+    def S3_BUCKET_NAME(self) -> str:
+        bucket_name = os.getenv("S3_BUCKET_NAME", "docuisine-images")
+        return bucket_name
+
+    @property
+    def S3_REGION(self) -> str:
+        region = os.getenv("S3_REGION", "apac")
+        if region is None:
+            raise EnvironmentError("S3_REGION environment variable is not set.")
+        return region
+
 
 env = Environment()
