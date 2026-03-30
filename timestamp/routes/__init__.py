@@ -1,3 +1,3 @@
-from . import root, timestamp
+from . import root, timestamp, auth
 
-__all__ = ["root", "timestamp"]
+__all__ = ["root", "timestamp", "auth"]
