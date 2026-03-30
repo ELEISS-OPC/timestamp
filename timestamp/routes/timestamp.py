@@ -1,5 +1,10 @@
 from fastapi import APIRouter, status
 
+from timestamp.dependencies import Attendance_Service, AuthenticatedUser
+from timestamp.utils import errors
+from timestamp.utils.validation import validate_role
+from timestamp.schemas.enums import Role
+
 router = APIRouter(prefix="/timestamp", tags=["Timestamp"])
 
 
@@ -9,11 +14,15 @@ router = APIRouter(prefix="/timestamp", tags=["Timestamp"])
     description="Time in the user and returns the current timestamp.",
     status_code=status.HTTP_200_OK,
 )
-async def time_in(user_id: int):
+async def time_in(
+    user_id: int,
+    attendance_service: Attendance_Service,
+    user: AuthenticatedUser,
+):
     """
     Time in the user and returns the current timestamp=.
 
-    Access Level: Employee
+    Access Level: Employee, Officer, Admin
 
     Raises:
         HTTPException: If the user is already timed in.
@@ -22,7 +31,11 @@ async def time_in(user_id: int):
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to time in.
     """
-    pass
+    validate_role(user.role, "oe")
+    if user.role in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+        raise errors.ForbiddenAccessError
+
+    return {"message": "ok"}
 
 
 @router.get(
@@ -31,11 +44,13 @@ async def time_in(user_id: int):
     description="Time out the user and returns the current timestamp.",
     status_code=status.HTTP_200_OK,
 )
-async def time_out(user_id: int):
+async def time_out(
+    user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
+):
     """
     Time out the user and returns the current timestamp.
 
-    Access Level: Employee
+    Access Level: Employee, Officer, Admin
 
     Raises:
         HTTPException: If the user is already timed out.
@@ -44,7 +59,11 @@ async def time_out(user_id: int):
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to time out.
     """
-    pass
+    validate_role(user.role, "oe")
+    if user.role in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+        raise errors.ForbiddenAccessError
+
+    return {"message": "ok"}
 
 
 @router.get(
@@ -53,17 +72,24 @@ async def time_out(user_id: int):
     description="Returns the current status of the user (timed in or timed out).",
     status_code=status.HTTP_200_OK,
 )
-async def current_status(user_id: int):
+async def current_status(
+    user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
+):
     """
     Returns the current status of the user (timed in or timed out).
 
-    Access Level: Employee
+    Access Level: Employee, Officer, Admin
 
     Raises:
         HTTPException: If the user is not found.
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to view the current status.
     """
+    validate_role(user.role, "oe")
+    if user.role in [Role.EMPLOYEE.value] and (user_id != user.id):
+        raise errors.ForbiddenAccessError
+
+    return {"message": "ok"}
 
 
 @router.get(
@@ -72,7 +98,9 @@ async def current_status(user_id: int):
     description="Returns the time in history of the user.",
     status_code=status.HTTP_200_OK,
 )
-async def time_in_history(user_id: int):
+async def time_in_history(
+    user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
+):
     """
     Returns the time in history of the user.
 
@@ -83,4 +111,8 @@ async def time_in_history(user_id: int):
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to view the time in history.
     """
-    pass
+    validate_role(user.role, "oe")
+    if user.role in [Role.EMPLOYEE.value] and (user_id != user.id):
+        raise errors.ForbiddenAccessError
+
+    return {"message": "ok"}
