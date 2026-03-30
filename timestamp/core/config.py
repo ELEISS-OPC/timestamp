@@ -76,5 +76,19 @@ class Environment:
             "DEPLOYMENT environment variable must be either 'docker' or 'vercel'."
         )
 
+    @property
+    def TIMEZONE(self) -> str:
+        """
+        Get the timezone for the application.
+
+        NOTES
+        -----
+        - The timezone should be in the format of "Area/Location" (e.g., "Asia/Manila").
+        - Refer to Wikipedia for valid **timezone identifiers**:
+            https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+        """
+        timezone = os.getenv("TIMEZONE", "Asia/Manila")
+        return timezone
+
 
 env = Environment()
