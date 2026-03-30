@@ -167,6 +167,10 @@ def validate_role(
         "o" allows only Officer role.
         "a" allows only Admin role.
 
+    NOTES
+    -----
+    Admins are allowed to access all resources by default.
+
     Raises
     ------
     errors.UnauthorizedError
