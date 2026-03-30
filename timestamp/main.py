@@ -14,3 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(routes.root.router)
+app.include_router(routes.timestamp.router)
