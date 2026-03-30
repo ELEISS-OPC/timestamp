@@ -1,6 +1,7 @@
 from typing import Optional
 
-from sqlalchemy import TIMESTAMP, ForeignKey
+from sqlalchemy import ForeignKey
+from datetime import datetime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, Default
@@ -16,9 +17,9 @@ class Attendance(Base, Default):
         Primary key identifier for the attendance record.
     user_id : int
         Foreign key identifier for the user associated with the attendance record.
-    time_in : TIMESTAMP
+    time_in : datetime
         Timestamp when the user clocked in.
-    time_out : Optional[TIMESTAMP]
+    time_out : Optional[datetime]
         Timestamp when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_in_selfie : str
         URL to the selfie taken when the user clocked in.
@@ -38,8 +39,8 @@ class Attendance(Base, Default):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
-    time_in: Mapped[TIMESTAMP] = mapped_column(nullable=False)
-    time_out: Mapped[Optional[TIMESTAMP]] = mapped_column(nullable=True)
+    time_in: Mapped[datetime] = mapped_column(nullable=False)
+    time_out: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     time_in_selfie: Mapped[str] = mapped_column(nullable=False)
     time_out_selfie: Mapped[Optional[str]] = mapped_column(nullable=True)
     time_in_latitude: Mapped[float] = mapped_column(nullable=False)
