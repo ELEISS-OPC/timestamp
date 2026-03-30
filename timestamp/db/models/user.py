@@ -23,7 +23,7 @@ class User(Base, Default):
         Middle name of the user. May be ``None``.
     last_name : str
         Last name of the user.
-    email : Optional[str]
+    email : str
         Unique email address of the user. May be ``None``.
     password : str
         Hashed password of the user.
@@ -36,8 +36,10 @@ class User(Base, Default):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True, nullable=False)
-    email: Mapped[Optional[str]] = mapped_column(unique=True, nullable=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    middle_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=True)
     password: Mapped[str]
     role_id: Mapped[int] = mapped_column(
         ForeignKey("role.id"), nullable=False, default=Role.EMPLOYEE.value
