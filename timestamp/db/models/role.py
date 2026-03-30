@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base
-from .employee import Employee
+from .user import User
 
 
 class Role(Base):
@@ -23,4 +23,4 @@ class Role(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
 
-    employees: Mapped[List["Employee"]] = relationship()
+    users: Mapped[List["User"]] = relationship()

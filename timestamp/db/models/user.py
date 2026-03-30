@@ -9,9 +9,9 @@ from .attendance import Attendance
 from .base import Base, Default
 
 
-class Employee(Base, Default):
+class User(Base, Default):
     """
-    Employee model representing a user in the system.
+    User model representing a user/employee in the system.
 
     Attributes
     ----------
@@ -33,7 +33,7 @@ class Employee(Base, Default):
         URL to the user's avatar image. May be ``None``.
     """
 
-    __tablename__ = "employee"
+    __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(unique=True, nullable=False)

@@ -1,4 +1,4 @@
-from .employee import EmployeeNotFoundError, EmployeeExistsError, DuplicateEmailError
+from .user import UserNotFoundError, UserExistsError, DuplicateEmailError
 from .auth import (
     InvalidCredentialsError,
     InvalidPasswordError,
@@ -8,8 +8,8 @@ from .auth import (
 
 
 __all__ = [
-    "EmployeeNotFoundError",
-    "EmployeeExistsError",
+    "UserNotFoundError",
+    "UserExistsError",
     "DuplicateEmailError",
     "InvalidCredentialsError",
     "InvalidPasswordError",

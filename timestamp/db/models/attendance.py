@@ -14,30 +14,30 @@ class Attendance(Base, Default):
     ----------
     id : int
         Primary key identifier for the attendance record.
-    employee_id : int
-        Foreign key identifier for the employee associated with the attendance record.
+    user_id : int
+        Foreign key identifier for the user associated with the attendance record.
     time_in : TIMESTAMP
-        Timestamp when the employee clocked in.
+        Timestamp when the user clocked in.
     time_out : Optional[TIMESTAMP]
-        Timestamp when the employee clocked out. May be ``None`` if the employee has not clocked out yet.
+        Timestamp when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_in_selfie : str
-        URL to the selfie taken when the employee clocked in.
+        URL to the selfie taken when the user clocked in.
     time_out_selfie : Optional[str]
-        URL to the selfie taken when the employee clocked out. May be ``None`` if the employee has not clocked out yet.
+        URL to the selfie taken when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_in_latitude : float
-        Latitude of the location where the employee clocked in.
+        Latitude of the location where the user clocked in.
     time_in_longitude : float
-        Longitude of the location where the employee clocked in.
+        Longitude of the location where the user clocked in.
     time_out_latitude : Optional[float]
-        Latitude of the location where the employee clocked out. May be ``None`` if the employee has not clocked out yet.
+        Latitude of the location where the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_out_longitude : Optional[float]
-        Longitude of the location where the employee clocked out. May be ``None`` if the employee has not clocked out yet.
+        Longitude of the location where the user clocked out. May be ``None`` if the user has not clocked out yet.
     """
 
     __tablename__ = "attendance"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    employee_id: Mapped[int] = mapped_column(ForeignKey("employee.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
     time_in: Mapped[TIMESTAMP] = mapped_column(nullable=False)
     time_out: Mapped[Optional[TIMESTAMP]] = mapped_column(nullable=True)
     time_in_selfie: Mapped[str] = mapped_column(nullable=False)
