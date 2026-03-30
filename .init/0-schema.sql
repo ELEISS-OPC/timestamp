@@ -18,15 +18,15 @@ CREATE TABLE default_table (
 -- ROLE TABLE
 -- =========================
 CREATE TABLE role (
-    role_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     role_name TEXT NOT NULL UNIQUE
 ) INHERITS (default_table);
 
 -- =========================
--- EMPLOYEE TABLE
+-- USER/EMPLOYEE TABLE
 -- =========================
-CREATE TABLE employee (
-    employee_id SERIAL PRIMARY KEY,
+CREATE TABLE user (
+    id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL,
     middle_name TEXT,
     last_name TEXT NOT NULL,
@@ -34,9 +34,9 @@ CREATE TABLE employee (
     password TEXT NOT NULL,
     role_id INTEGER NOT NULL,
 
-    CONSTRAINT fk_employee_role
+    CONSTRAINT fk_user_role
         FOREIGN KEY (role_id)
-        REFERENCES role(role_id)
+        REFERENCES role(id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 ) INHERITS (default_table);
@@ -45,7 +45,7 @@ CREATE TABLE employee (
 -- ATTENDANCE TABLE
 -- =========================
 CREATE TABLE attendance (
-    attendance_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     employee_id INTEGER NOT NULL,
 
     time_in TIMESTAMP NOT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE attendance (
 
     CONSTRAINT fk_attendance_employee
         FOREIGN KEY (employee_id)
-        REFERENCES employee(employee_id)
+        REFERENCES user(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) INHERITS (default_table);
@@ -70,6 +70,6 @@ CREATE TABLE attendance (
 -- =========================
 -- INDEXES
 -- =========================
-CREATE INDEX idx_employee_role_id ON employee(role_id);
+CREATE INDEX idx_user_role_id ON user(role_id);
 CREATE INDEX idx_attendance_employee_id ON attendance(employee_id);
 CREATE INDEX idx_attendance_time_in ON attendance(time_in);
