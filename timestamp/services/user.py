@@ -33,9 +33,11 @@ class UserService:
 
     def create_user(
         self,
-        username: str,
+        email: str,
         password: str,
-        email: Optional[str] = None,
+        first_name: str,
+        last_name: str,
+        middle_name: Optional[str] = None,
         role: Role = Role.EMPLOYEE,
     ) -> User:
         """
@@ -43,13 +45,17 @@ class UserService:
 
         Parameters
         ----------
-        username : str
-            The username of the new user. Must be unique.
+        email : str
+            The email address of the new user.
         password : str
             The plain-text password to be encrypted and stored.
-        email : Optional[str], optional
-            The email address of the new user. Default is None.
-        role : Role, optional
+        first_name : str
+            The first name of the new user.
+        last_name : str
+            The last name of the new user.
+        middle_name : Optional[str], optional
+            The middle name of the new user. Default is None.
+        role_id : Role, optional
             The role of the new user. Default is Role.EMPLOYEE.
 
         Returns
@@ -69,14 +75,19 @@ class UserService:
         """
         encrypted_password = hash_in_sha256(password)
         new_user = User(
-            username=username, password=encrypted_password, email=email, role=role.value
+            email=email,
+            password=encrypted_password,
+            first_name=first_name,
+            middle_name=middle_name,
+            last_name=last_name,
+            role_id=role.value,
         )
         try:
             self.db_session.add(new_user)
             self.db_session.commit()
         except IntegrityError:
             self.db_session.rollback()
-            raise errors.UserExistsError(username)
+            raise errors.UserExistsError(email or first_name)
         return new_user
 
     def get_user(
@@ -181,13 +192,13 @@ class UserService:
 
     def _get_user_by_username(self, username: str) -> Optional[User]:
         """
-        Retrieve a user from the database by their username.
+        Retrieve a user from the database by their login identifier.
         No business logic should be placed here.
 
         Parameters
         ----------
         username : str
-            The username of the user to retrieve.
+            The login identifier of the user to retrieve.
 
         Returns
         -------
@@ -196,9 +207,9 @@ class UserService:
 
         Notes
         -----
-        No business logic should be placed here.
+        In this app, OAuth2 "username" is mapped to user email.
         """
-        return self.db_session.query(User).filter_by(username=username).first()
+        return self.db_session.query(User).filter_by(email=username).first()
 
     def update_user_email(self, user_id: int, new_email: str) -> User:
         """
@@ -358,7 +369,7 @@ class UserService:
 
         if self.jwt_config is None:
             raise ValueError("JWT configuration is not set for UserService.")
-        data = {"sub": user.username}
+        data: dict[str, object] = {"sub": str(user.id)}
         if self.jwt_config.access_token_expire_minutes:
             expires_delta = datetime.timedelta(
                 minutes=self.jwt_config.access_token_expire_minutes
@@ -401,11 +412,16 @@ class UserService:
                 self.jwt_config.secret_key,
                 algorithms=[self.jwt_config.algorithm.value],
             )
-            username: str = payload.get("sub")
-            if username is None:
+            user_id = payload.get("sub")
+            if user_id is None:
                 raise errors.InvalidCredentialsError
-            user = self.get_user(username=username)
-        except (jwt.InvalidTokenError, errors.UserNotFoundError) as e:
+            user = self.get_user(user_id=int(user_id))
+        except (
+            ValueError,
+            TypeError,
+            jwt.InvalidTokenError,
+            errors.UserNotFoundError,
+        ) as e:
             raise errors.InvalidCredentialsError from e
         return user
 
@@ -439,8 +455,7 @@ class UserService:
         user = self._get_user_by_id(user_id)
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
-        user.img = img
-        user.preview_img = preview_img
+        user.avatar_url = img or preview_img
         self.db_session.commit()
         return user
 
@@ -471,10 +486,10 @@ class UserService:
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
 
-        if user.role == Role.ADMIN.value:
-            user.role = Role.EMPLOYEE.value
+        if user.role_id == Role.ADMIN.value:
+            user.role_id = Role.EMPLOYEE.value
         else:
-            user.role = Role.ADMIN.value
+            user.role_id = Role.ADMIN.value
 
         self.db_session.commit()
         return user
