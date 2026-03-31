@@ -31,8 +31,8 @@ async def time_in(
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to time in.
     """
-    validate_role(user.role, "oe")
-    if user.role in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+    validate_role(user.role_id, "oe")
+    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
 
     return {"message": "ok"}
@@ -59,8 +59,8 @@ async def time_out(
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to time out.
     """
-    validate_role(user.role, "oe")
-    if user.role in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+    validate_role(user.role_id, "oe")
+    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
 
     return {"message": "ok"}
@@ -85,8 +85,8 @@ async def current_status(
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to view the current status.
     """
-    validate_role(user.role, "oe")
-    if user.role in [Role.EMPLOYEE.value] and (user_id != user.id):
+    validate_role(user.role_id, "oe")
+    if user.role_id in [Role.EMPLOYEE.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
 
     return {"message": "ok"}
@@ -111,8 +111,8 @@ async def time_in_history(
         HTTPException: If the user is not authenticated.
         HTTPException: If the user is not authorized to view the time in history.
     """
-    validate_role(user.role, "oe")
-    if user.role in [Role.EMPLOYEE.value] and (user_id != user.id):
+    validate_role(user.role_id, "oe")
+    if user.role_id in [Role.EMPLOYEE.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
 
     return {"message": "ok"}

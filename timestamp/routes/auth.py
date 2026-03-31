@@ -29,8 +29,10 @@ async def login(form_data: AuthForm, user_service: User_Service) -> auth_schemas
     Access Level: Public
     """
     try:
+        # Authenticate user using email and password
+        # Username is mapped to email in the AuthForm for compatibility with OAuth2PasswordRequestForm
         user = user_service.authenticate_user(
-            username=form_data.username, password=form_data.password
+            email=form_data.username, password=form_data.password
         )
     except errors.UserNotFoundError as e:
         raise HTTPException(

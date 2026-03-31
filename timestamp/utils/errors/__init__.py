@@ -1,4 +1,4 @@
-from .user import UserNotFoundError, UserExistsError, DuplicateEmailError
+from .user import UserNotFoundError, UserExistsError
 from .auth import (
     InvalidCredentialsError,
     InvalidPasswordError,
@@ -10,7 +10,6 @@ from .auth import (
 __all__ = [
     "UserNotFoundError",
     "UserExistsError",
-    "DuplicateEmailError",
     "InvalidCredentialsError",
     "InvalidPasswordError",
     "ForbiddenAccessError",

@@ -91,46 +91,46 @@ class UserService:
         return new_user
 
     def get_user(
-        self, user_id: Optional[int] = None, username: Optional[str] = None
+        self, user_id: Optional[int] = None, email: Optional[str] = None
     ) -> User:
         """
-        Retrieve a user from the database by ID or username.
+        Retrieve a user from the database by ID or email.
 
         Parameters
         ----------
         user_id : int, optional
             The unique ID of the user to retrieve. Default is None.
-        username : str, optional
-            The username of the user to retrieve. Default is None.
+        email : str, optional
+            The email address of the user to retrieve. Default is None.
 
         Returns
         -------
         User
-            The `User` instance matching the provided ID or username.
+            The `User` instance matching the provided ID or email.
 
         Raises
         ------
         ValueError
-            If neither `user_id` nor `username` is provided.
+            If neither `user_id` nor `email` is provided.
         UserNotFoundError
             If no user is found with the given criteria.
 
         Notes
         -----
-        - If both `user_id` and `username` are provided, `user_id` takes precedence.
+        - If both `user_id` and `email` are provided, `user_id` takes precedence.
         """
         if user_id is not None:
             result = self._get_user_by_id(user_id=user_id)
-        elif username is not None:
-            result = self._get_user_by_username(username=username)
+        elif email is not None:
+            result = self._get_user_by_email(email=email)
         else:
-            raise ValueError("Either user ID or username must be provided.")
+            raise ValueError("Either user ID or email must be provided.")
 
         if result is None:
             raise (
                 errors.UserNotFoundError(user_id=user_id)
                 if user_id is not None
-                else errors.UserNotFoundError(username=username)
+                else errors.UserNotFoundError(email=email)
             )
 
         return result
@@ -190,15 +190,15 @@ class UserService:
         """
         return self.db_session.query(User).filter_by(id=user_id).first()
 
-    def _get_user_by_username(self, username: str) -> Optional[User]:
+    def _get_user_by_email(self, email: str) -> Optional[User]:
         """
-        Retrieve a user from the database by their login identifier.
+        Retrieve a user from the database by their email address.
         No business logic should be placed here.
 
         Parameters
         ----------
-        username : str
-            The login identifier of the user to retrieve.
+        email : str
+            The email address of the user to retrieve.
 
         Returns
         -------
@@ -209,7 +209,7 @@ class UserService:
         -----
         In this app, OAuth2 "username" is mapped to user email.
         """
-        return self.db_session.query(User).filter_by(email=username).first()
+        return self.db_session.query(User).filter_by(email=email).first()
 
     def update_user_email(self, user_id: int, new_email: str) -> User:
         """
@@ -246,7 +246,7 @@ class UserService:
             self.db_session.commit()
         except IntegrityError:
             self.db_session.rollback()
-            raise errors.DuplicateEmailError(new_email)
+            raise errors.UserExistsError(new_email)
         return user
 
     def update_user_password(
@@ -288,10 +288,10 @@ class UserService:
         return user
 
     def authenticate_user(
-        self, password: str, id: Optional[int] = None, username: Optional[str] = None
+        self, password: str, id: Optional[int] = None, email: Optional[str] = None
     ) -> Union[User, bool]:
         """
-        Authenticate a user by their username and password.
+        Authenticate a user by their email and password.
 
         Parameters
         ----------
@@ -299,8 +299,8 @@ class UserService:
             The plain-text password provided for authentication.
         id : int, optional
             The unique ID of the user to authenticate. Default is None.
-        username : str, optional
-            The username of the user to authenticate.
+        email : str, optional
+            The email address of the user to authenticate.
 
         Returns
         -------
@@ -310,17 +310,17 @@ class UserService:
         Raises
         ------
         UserNotFoundError
-            If no user is found with the given ID or username.
+            If no user is found with the given ID or email.
         InvalidPasswordError
             If the provided password does not match the stored password.
         ValueError
-            If both `id` and `username` are `None`.
+            If both `id` and `email` are `None`.
 
         Notes
         -----
         - The provided password is encrypted using SHA-256 for comparison.
         """
-        user = self.get_user(user_id=id, username=username)
+        user = self.get_user(user_id=id, email=email)
         if not self._verify_password(password, user.password):
             raise errors.InvalidPasswordError
         return user
