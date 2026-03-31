@@ -58,3 +58,23 @@ class CurrentStatusResponse(BaseModel):
     )
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class DailyShiftTotalResponse(BaseModel):
+    date: datetime = Field(
+        ..., description="The date for which the total shifts are calculated"
+    )
+    total_shifts: int = Field(
+        ..., description="Total number of shifts for the user on the current day"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CompletedShiftsResponse(BaseModel):
+    completed_shifts: list[DailyShiftTotalResponse] = Field(
+        ...,
+        description="List of total completed shifts for each day in the last 3 months",
+    )
+
+    model_config = ConfigDict(from_attributes=True)

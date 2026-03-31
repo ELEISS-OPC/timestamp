@@ -6,6 +6,8 @@ from timestamp.core.config import env
 from timestamp.utils import errors
 import pytz
 from typing import Union, Literal
+from sqlalchemy import func
+from dateutil.relativedelta import relativedelta
 
 
 class AttendanceService:
@@ -226,3 +228,39 @@ class AttendanceService:
             raise errors.NoRecordsFoundError(user_id=user_id)
 
         return attendance_records
+
+    def get_completed_shifts_recent_history(self):
+        """
+        Get a timeseries of total completed shifts across all users,
+        bounded by the last 3 months up to the current day.
+
+        Returns
+        -------
+        list[dict]
+            A list of dictionaries with the date and the total count.
+        """
+        # 1. Calculate the date range
+        # We use the current time in the configured timezone
+        now = datetime.now(tz=pytz.timezone(env.TIMEZONE))
+        three_months_ago = now - relativedelta(months=3)
+
+        # 2. Build the query with date boundaries
+        query = (
+            self.db_session.query(
+                func.date(Attendance.time_in).label("shift_date"),
+                func.count(Attendance.id).label("total_shifts"),
+            )
+            .filter(Attendance.time_out.isnot(None))
+            .filter(Attendance.time_in >= three_months_ago)
+            .filter(Attendance.time_in <= now)
+            .group_by("shift_date")
+            .order_by("shift_date")
+        )
+
+        results = query.all()
+
+        # 3. Format results
+        return [
+            {"date": row.shift_date, "total_shifts": row.total_shifts}
+            for row in results
+        ]

@@ -220,3 +220,47 @@ async def attendance_history(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while retrieving the time in history of the user.",
         ) from e
+
+
+@router.get(
+    "/completed-shifts",
+    summary="Get Completed Shifts Timeseries",
+    description="Returns a daily count of completed shifts for the last 3 months. Restricted to Admins and Officers.",
+    status_code=status.HTTP_200_OK,
+    # response_model=attendance_schemas.CompletedShiftsSeriesResponse,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            "model": Detail,
+            "description": "Not authorized to view analytics.",
+        },
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "model": Detail,
+            "description": "Internal server error.",
+        },
+    },
+)
+async def get_attendance_analytics(
+    attendance_service: Attendance_Service, user: AuthenticatedUser
+):
+    """
+    Returns the daily volume of completed shifts for the organization.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(user.role_id, "o")
+
+    try:
+        data = attendance_service.get_completed_shifts_recent_history()
+        return attendance_schemas.CompletedShiftsResponse(
+            completed_shifts=[
+                attendance_schemas.DailyShiftTotalResponse(
+                    date=record["date"], total_shifts=record["total_shifts"]
+                )
+                for record in data
+            ]
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while fetching analytics data.",
+        ) from e
