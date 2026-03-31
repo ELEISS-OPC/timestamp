@@ -60,7 +60,7 @@ async def time_in(
         return attendance_schemas.TimeInResponse.model_validate(record)
     except errors.AlreadyTimedInError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
-    except errors.UserNotFoundError as e:
+    except errors.NoRecordsFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except Exception as e:
         raise HTTPException(
@@ -120,7 +120,7 @@ async def time_out(
         return attendance_schemas.TimeOutResponse.model_validate(record)
     except errors.AlreadyTimedOutError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
-    except errors.UserNotFoundError as e:
+    except errors.NoRecordsFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except Exception as e:
         raise HTTPException(

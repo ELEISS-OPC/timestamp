@@ -63,16 +63,16 @@ class AttendanceService:
     def get_latest_attendance(self, user_id: int):
         """Get the latest attendance record for a user."""
         # Implementation to retrieve the latest attendance record for the user
-        user = (
+        attendance_record = (
             self.db_session.query(Attendance)
             .filter_by(user_id=user_id)
             .order_by(Attendance.time_in.desc())
             .first()
         )
 
-        if user is None:
-            raise errors.UserNotFoundError(user_id=user_id)
-        return user
+        if attendance_record is None:
+            raise errors.NoRecordsFoundError(user_id=user_id)
+        return attendance_record
 
     def is_user_clocked_in(self, user_id: int) -> bool:
         """Check if the user is currently clocked in."""
