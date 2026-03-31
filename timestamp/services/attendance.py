@@ -3,6 +3,7 @@ from timestamp.db.models import Attendance
 from datetime import datetime
 from typing import Optional
 from timestamp.core.config import env
+from timestamp.utils import errors
 import pytz
 
 
@@ -25,7 +26,7 @@ class AttendanceService:
         # Implementation to record time in for the user
 
         if self.is_user_clocked_in(user_id):
-            raise Exception("User is already clocked in.")
+            raise errors.AlreadyTimedInError(user_id=user_id)
 
         attendance_record = Attendance(
             user_id=user_id,
@@ -57,17 +58,21 @@ class AttendanceService:
             latest_attendance.time_out_selfie = selfie
             self.db_session.commit()
         else:
-            raise Exception("User is not currently clocked in.")
+            raise errors.AlreadyTimedOutError(user_id=user_id)
 
     def get_latest_attendance(self, user_id: int):
         """Get the latest attendance record for a user."""
         # Implementation to retrieve the latest attendance record for the user
-        return (
+        user = (
             self.db_session.query(Attendance)
             .filter_by(user_id=user_id)
             .order_by(Attendance.time_in.desc())
             .first()
         )
+
+        if user is None:
+            raise errors.UserNotFoundError(user_id=user_id)
+        return user
 
     def is_user_clocked_in(self, user_id: int) -> bool:
         """Check if the user is currently clocked in."""
