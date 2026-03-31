@@ -31,5 +31,16 @@ dev = [
 [tool.pytest.ini_options]
 addopts = "--cov-config=.coveragerc --cov=timestamp tests/ --cov-report html"
 
+[tool.pytest_env]
+MODE = "development"
+DATABASE_URL = "postgresql+psycopg2://timestamp:password@localhost:5432/timestamp"
+JWT_SECRET_KEY = "4e9db3a3f86d82cb45f552b9e24e7a652fbb5d3565a3f60a798f904cee6b235b"
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_MINUTES = 525600
+S3_ENDPOINT_URL = "http://localhost:9000"
+S3_ACCESS_KEY = "minioadmin"
+S3_SECRET_KEY = "minioadmin"
+S3_BUCKET_NAME = "timestamp-test"
+
 [project.scripts]
 app = "timestamp.main:app"
