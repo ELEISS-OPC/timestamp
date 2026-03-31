@@ -2,7 +2,7 @@
 -- DROP TABLES (optional reset)
 -- =========================
 DROP TABLE IF EXISTS attendance CASCADE;
-DROP TABLE IF EXISTS employee CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS role CASCADE;
 DROP TABLE IF EXISTS default_table CASCADE;
 
@@ -19,13 +19,13 @@ CREATE TABLE default_table (
 -- =========================
 CREATE TABLE role (
     id SERIAL PRIMARY KEY,
-    role_name TEXT NOT NULL UNIQUE
+    name TEXT NOT NULL UNIQUE
 ) INHERITS (default_table);
 
 -- =========================
 -- USER/EMPLOYEE TABLE
 -- =========================
-CREATE TABLE user (
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     first_name TEXT NOT NULL,
     middle_name TEXT,
@@ -33,6 +33,7 @@ CREATE TABLE user (
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     role_id INTEGER NOT NULL,
+    avatar_url TEXT,
 
     CONSTRAINT fk_user_role
         FOREIGN KEY (role_id)
@@ -62,7 +63,7 @@ CREATE TABLE attendance (
 
     CONSTRAINT fk_attendance_employee
         FOREIGN KEY (employee_id)
-        REFERENCES user(id)
+        REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) INHERITS (default_table);
@@ -70,6 +71,6 @@ CREATE TABLE attendance (
 -- =========================
 -- INDEXES
 -- =========================
-CREATE INDEX idx_user_role_id ON user(role_id);
+CREATE INDEX idx_user_role_id ON users(role_id);
 CREATE INDEX idx_attendance_employee_id ON attendance(employee_id);
 CREATE INDEX idx_attendance_time_in ON attendance(time_in);
