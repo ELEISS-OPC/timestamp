@@ -113,7 +113,7 @@ class Environment:
 
     @property
     def S3_BUCKET_NAME(self) -> str:
-        bucket_name = os.getenv("S3_BUCKET_NAME", "docuisine-images")
+        bucket_name = os.getenv("S3_BUCKET_NAME", "timestamp")
         return bucket_name
 
     @property
