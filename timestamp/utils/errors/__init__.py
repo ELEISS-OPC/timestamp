@@ -5,9 +5,11 @@ from .auth import (
     ForbiddenAccessError,
     UnauthorizedError,
 )
-
+from .attendance import AlreadyTimedInError, AlreadyTimedOutError
 
 __all__ = [
+    "AlreadyTimedInError",
+    "AlreadyTimedOutError",
     "UserNotFoundError",
     "UserExistsError",
     "InvalidCredentialsError",
