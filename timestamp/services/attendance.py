@@ -13,7 +13,14 @@ class AttendanceService:
         self,
         db_session: Session,
     ):
-        """Service for managing attendance records."""
+        """
+        Initialize the attendance service.
+
+        Parameters
+        ----------
+        db_session : Session
+            Active SQLAlchemy session used for attendance persistence.
+        """
         self.db_session = db_session
 
     def time_in(
@@ -23,7 +30,30 @@ class AttendanceService:
         longitude: float,
         selfie: Optional[str] = None,
     ):
-        """Record the time a user clocks in."""
+        """
+        Record a time-in event for a user.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user clocking in.
+        latitude : float
+            Latitude where the time-in was recorded.
+        longitude : float
+            Longitude where the time-in was recorded.
+        selfie : Optional[str], optional
+            URL for the time-in selfie, by default None.
+
+        Returns
+        -------
+        Attendance
+            The created attendance record.
+
+        Raises
+        ------
+        AlreadyTimedInError
+            If the latest record for the user is still open.
+        """
 
         try:
             if self.is_user_clocked_in(user_id):
@@ -50,8 +80,30 @@ class AttendanceService:
         longitude: float,
         selfie: Optional[str] = None,
     ):
-        """Record the time a user clocks out."""
-        # Implementation to record time out for the user
+        """
+        Record a time-out event for a user.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user clocking out.
+        latitude : float
+            Latitude where the time-out was recorded.
+        longitude : float
+            Longitude where the time-out was recorded.
+        selfie : Optional[str], optional
+            URL for the time-out selfie, by default None.
+
+        Returns
+        -------
+        Attendance
+            The updated attendance record containing time-out details.
+
+        Raises
+        ------
+        AlreadyTimedOutError
+            If there is no open attendance record to close.
+        """
         if self.is_user_clocked_in(user_id):
             latest_attendance = self.get_latest_attendance(user_id)
             latest_attendance.time_out = datetime.now(tz=pytz.timezone(env.TIMEZONE))
@@ -67,8 +119,24 @@ class AttendanceService:
         return latest_attendance
 
     def get_latest_attendance(self, user_id: int):
-        """Get the latest attendance record for a user."""
-        # Implementation to retrieve the latest attendance record for the user
+        """
+        Retrieve the most recent attendance record for a user.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user.
+
+        Returns
+        -------
+        Attendance
+            The latest attendance record ordered by newest time-in.
+
+        Raises
+        ------
+        NoRecordsFoundError
+            If the user has no attendance records.
+        """
         attendance_record = (
             self.db_session.query(Attendance)
             .filter_by(user_id=user_id)
@@ -81,21 +149,72 @@ class AttendanceService:
         return attendance_record
 
     def is_user_clocked_in(self, user_id: int) -> bool:
-        """Check if the user is currently clocked in."""
+        """
+        Determine whether a user currently has an open attendance record.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user.
+
+        Returns
+        -------
+        bool
+            True when the latest attendance record has no time-out, otherwise False.
+
+        Raises
+        ------
+        NoRecordsFoundError
+            If the user has no attendance records.
+        """
         latest_attendance = self.get_latest_attendance(user_id)
         return latest_attendance is not None and latest_attendance.time_out is None
 
     def current_status(
         self, user_id: int
     ) -> Union[Literal["timed_in"], Literal["timed_out"]]:
-        """Get the current status of the user (timed in or timed out)."""
+        """
+        Return the user's current attendance status.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user.
+
+        Returns
+        -------
+        Literal["timed_in"] | Literal["timed_out"]
+            "timed_in" when the user has an open attendance entry,
+            otherwise "timed_out".
+
+        Raises
+        ------
+        NoRecordsFoundError
+            If the user has no attendance records.
+        """
         if self.is_user_clocked_in(user_id):
             return "timed_in"
         return "timed_out"
 
     def time_in_history(self, user_id: int):
-        """Get the time in and out history for a user."""
-        # Implementation to retrieve the time in and out history for the user
+        """
+        Retrieve complete attendance history for a user.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user.
+
+        Returns
+        -------
+        list[Attendance]
+            Attendance records ordered from oldest to newest by time-in.
+
+        Raises
+        ------
+        NoRecordsFoundError
+            If the user has no attendance records.
+        """
         attendance_records = (
             self.db_session.query(Attendance)
             .filter_by(user_id=user_id)
