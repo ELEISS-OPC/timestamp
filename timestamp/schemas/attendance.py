@@ -44,7 +44,7 @@ class TimeInAndOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class TimeInHistoryResponse(BaseModel):
+class AttendanceHistoryResponse(BaseModel):
     history: list[TimeInAndOut] = Field(
         ..., description="List of time in and out records for the user"
     )

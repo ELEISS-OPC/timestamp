@@ -177,11 +177,11 @@ async def current_status(
 
 
 @router.get(
-    "/time-in-history/{user_id}",
-    summary="Time In History of User",
-    description="Returns the time in history of the user.",
+    "/attendance-history/{user_id}",
+    summary="Attendance History of User",
+    description="Returns the attendance history of the user.",
     status_code=status.HTTP_200_OK,
-    response_model=attendance_schemas.TimeInHistoryResponse,
+    response_model=attendance_schemas.AttendanceHistoryResponse,
     responses={
         status.HTTP_403_FORBIDDEN: {
             "model": Detail,
@@ -194,25 +194,25 @@ async def current_status(
         },
     },
 )
-async def time_in_history(
+async def attendance_history(
     user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
 ):
     """
-    Returns the time in history of the user.
+    Returns the attendance history of the user.
 
     Access Level: Employee, Officer, Admin
 
     Raises:
         HTTPException: If the user is not found.
         HTTPException: If the user is not authenticated.
-        HTTPException: If the user is not authorized to view the time in history.
+        HTTPException: If the user is not authorized to view the attendance history.
     """
     validate_role(user.role_id, "oe")
     if user.role_id in [Role.EMPLOYEE.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
     try:
         records = attendance_service.time_in_history(user_id)
-        return attendance_schemas.TimeInHistoryResponse(history=records)
+        return attendance_schemas.AttendanceHistoryResponse(history=records)
     except errors.NoRecordsFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except Exception as e:
