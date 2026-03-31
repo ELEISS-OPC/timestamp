@@ -58,9 +58,12 @@ class AttendanceService:
             latest_attendance.time_out_latitude = latitude
             latest_attendance.time_out_longitude = longitude
             latest_attendance.time_out_selfie = selfie
-            self.db_session.commit()
         else:
+            self.db_session.rollback()
             raise errors.AlreadyTimedOutError(user_id=user_id)
+
+        self.db_session.commit()
+        return latest_attendance
 
     def get_latest_attendance(self, user_id: int):
         """Get the latest attendance record for a user."""
