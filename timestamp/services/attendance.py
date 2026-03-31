@@ -23,10 +23,12 @@ class AttendanceService:
         selfie: Optional[str] = None,
     ):
         """Record the time a user clocks in."""
-        # Implementation to record time in for the user
 
-        if self.is_user_clocked_in(user_id):
-            raise errors.AlreadyTimedInError(user_id=user_id)
+        try:
+            if self.is_user_clocked_in(user_id):
+                raise errors.AlreadyTimedInError(user_id=user_id)
+        except errors.NoRecordsFoundError:
+            pass  # No records found, so the user is not clocked in
 
         attendance_record = Attendance(
             user_id=user_id,
