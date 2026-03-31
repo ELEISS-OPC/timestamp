@@ -181,6 +181,18 @@ async def current_status(
     summary="Time In History of User",
     description="Returns the time in history of the user.",
     status_code=status.HTTP_200_OK,
+    response_model=attendance_schemas.TimeInHistoryResponse,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            "model": Detail,
+            "description": "Forbidden access to view the time in history of the user.",
+        },
+        status.HTTP_404_NOT_FOUND: {"model": Detail, "description": "User not found."},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "model": Detail,
+            "description": "Internal server error.",
+        },
+    },
 )
 async def time_in_history(
     user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
@@ -198,5 +210,13 @@ async def time_in_history(
     validate_role(user.role_id, "oe")
     if user.role_id in [Role.EMPLOYEE.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
-
-    return {"message": "ok"}
+    try:
+        records = attendance_service.time_in_history(user_id)
+        return attendance_schemas.TimeInHistoryResponse(history=records)
+    except errors.NoRecordsFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving the time in history of the user.",
+        ) from e

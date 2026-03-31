@@ -92,3 +92,18 @@ class AttendanceService:
         if self.is_user_clocked_in(user_id):
             return "timed_in"
         return "timed_out"
+
+    def time_in_history(self, user_id: int):
+        """Get the time in and out history for a user."""
+        # Implementation to retrieve the time in and out history for the user
+        attendance_records = (
+            self.db_session.query(Attendance)
+            .filter_by(user_id=user_id)
+            .order_by(Attendance.time_in.asc())
+            .all()
+        )
+
+        if not attendance_records:
+            raise errors.NoRecordsFoundError(user_id=user_id)
+
+        return attendance_records
