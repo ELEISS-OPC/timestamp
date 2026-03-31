@@ -6,8 +6,9 @@ from timestamp.core.config import env
 from timestamp.utils import errors
 import pytz
 from typing import Union, Literal
-from sqlalchemy import func
+from sqlalchemy import func, extract
 from dateutil.relativedelta import relativedelta
+import statistics
 
 
 class AttendanceService:
@@ -264,3 +265,61 @@ class AttendanceService:
             {"date": row.shift_date, "total_shifts": row.total_shifts}
             for row in results
         ]
+
+    def get_bradford_summary(
+        self, aggregate: Literal["median", "average", "minimum", "maximum"]
+    ):
+        """
+        Calculates the Bradford Factor for all users and returns the
+        requested aggregate statistic. The lower the score, the better, as it indicates fewer and less severe absences.
+
+        Formula: B = S² * D
+        S = Total number of separate absence spells
+        D = Total number of days of absence
+
+        Parameters
+        ----------
+        aggregate : Literal["median", "average", "minimum", "maximum"]
+            The type of aggregate statistic to return for the Bradford Scores.
+
+        Returns
+        -------
+        float
+            The calculated aggregate Bradford Score across all users.
+        """
+
+        # 1. Calculate duration in decimal days for each record (PostgreSQL syntax)
+        # 86400 is the number of seconds in a day.
+        duration_days = (
+            extract("epoch", Attendance.time_out - Attendance.time_in) / 86400
+        )
+
+        user_stats = (
+            self.db_session.query(
+                Attendance.user_id,
+                func.count(Attendance.id).label("spells"),
+                func.sum(duration_days).label("total_days"),
+            )
+            .filter(Attendance.time_out.isnot(None))
+            .group_by(Attendance.user_id)
+            .all()
+        )
+
+        if not user_stats:
+            return 0
+
+        # 2. Calculate the Bradford Score per user: (S^2) * D
+        scores = [(row.spells**2) * (row.total_days or 0) for row in user_stats]
+
+        # 3. Mapping the requested Aggregate Function
+        stats_map = {
+            "average": lambda x: sum(x) / len(x),
+            "median": statistics.median,
+            "minimum": min,
+            "maximum": max,
+        }
+
+        if aggregate not in stats_map:
+            raise ValueError(f"Unsupported aggregate type: {aggregate}")
+
+        return stats_map[aggregate](scores)

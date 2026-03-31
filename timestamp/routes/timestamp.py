@@ -5,6 +5,7 @@ from timestamp.schemas import attendance as attendance_schemas
 from timestamp.schemas import Role, Detail
 from timestamp.utils import errors
 from timestamp.utils.validation import validate_role
+from typing import Literal
 
 router = APIRouter(prefix="/timestamp", tags=["Timestamp"])
 
@@ -223,7 +224,7 @@ async def attendance_history(
 
 
 @router.get(
-    "/completed-shifts",
+    "/analytics/completed-shifts",
     summary="Get Completed Shifts Timeseries",
     description="Returns a daily count of completed shifts for the last 3 months. Restricted to Admins and Officers.",
     status_code=status.HTTP_200_OK,
@@ -264,3 +265,35 @@ async def get_attendance_analytics(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred while fetching analytics data.",
         ) from e
+
+
+@router.get(
+    "/analytics/bradford-aggregate",
+    summary="Get Aggregate Bradford Score",
+    description="Returns the median, average, minimum, or maximum Bradford Score across all users.",
+)
+async def get_bradford_analytics(
+    aggregate: Literal["median", "average", "minimum", "maximum"],
+    attendance_service: Attendance_Service,
+    user: AuthenticatedUser,
+):
+    """
+    Returns the requested aggregate statistic for the organization's Bradford Scores.
+
+    Access Level: Officer, Admin
+    """
+    # Restrict to Officers/Admins
+    validate_role(user.role_id, "o")
+
+    try:
+        result = attendance_service.get_bradford_summary(aggregate)
+        return {
+            "aggregate_type": aggregate,
+            "value": round(result, 2),
+            "metric": "Bradford Factor",
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate Bradford aggregate: {str(e)}",
+        )
