@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
 from timestamp.db.models import Attendance
 from datetime import datetime
-from typing import Optional, Union, Tuple
-from timestamp.schemas.attendance import Coordinates
+from typing import Optional
 from timestamp.core.config import env
 import pytz
 
@@ -18,7 +17,8 @@ class AttendanceService:
     def time_in(
         self,
         user_id: int,
-        coordinates: Union[Coordinates, Tuple[float, float]],
+        latitude: float,
+        longitude: float,
         selfie: Optional[str] = None,
     ):
         """Record the time a user clocks in."""
@@ -27,23 +27,23 @@ class AttendanceService:
         if self.is_user_clocked_in(user_id):
             raise Exception("User is already clocked in.")
 
-        if isinstance(coordinates, Tuple):
-            coordinates = Coordinates(latitude=coordinates[0], longitude=coordinates[1])
-
         attendance_record = Attendance(
             user_id=user_id,
             time_in=datetime.now(tz=pytz.timezone(env.TIMEZONE)),
             time_in_selfie=selfie,
-            time_in_latitude=coordinates.latitude,
-            time_in_longitude=coordinates.longitude,
+            time_in_latitude=latitude,
+            time_in_longitude=longitude,
         )
         self.db_session.add(attendance_record)
         self.db_session.commit()
 
+        return attendance_record
+
     def time_out(
         self,
         user_id: int,
-        coordinates: Union[Coordinates, Tuple[float, float]],
+        latitude: float,
+        longitude: float,
         selfie: Optional[str] = None,
     ):
         """Record the time a user clocks out."""
@@ -52,12 +52,8 @@ class AttendanceService:
             latest_attendance = self.get_latest_attendance(user_id)
             latest_attendance.time_out = datetime.now(tz=pytz.timezone(env.TIMEZONE))
 
-            if isinstance(coordinates, Tuple):
-                coordinates = Coordinates(
-                    latitude=coordinates[0], longitude=coordinates[1]
-                )
-            latest_attendance.time_out_latitude = coordinates.latitude
-            latest_attendance.time_out_longitude = coordinates.longitude
+            latest_attendance.time_out_latitude = latitude
+            latest_attendance.time_out_longitude = longitude
             latest_attendance.time_out_selfie = selfie
             self.db_session.commit()
         else:
