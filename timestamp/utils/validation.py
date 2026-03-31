@@ -150,7 +150,7 @@ def validate_password(password: str) -> str:
 
 
 def validate_role(
-    role: str,
+    role_id: int,
     allowed_roles: Optional[Iterable[Role] | Literal["all", "oe", "o", "a"]] = "a",
 ) -> None:
     """
@@ -158,8 +158,8 @@ def validate_role(
 
     Parameters
     ----------
-    role : str
-        The role string to validate.
+    role : int
+        The role ID to validate.
     allowed_roles : Iterable[Role], Literal["all", "oe", "o", "a"], optional
         The iterable of allowed roles, by default "a" (Admin-only).
         "all" allows all roles. "a" allows only Admin role.
@@ -196,10 +196,10 @@ def validate_role(
 
     # Parse role
     try:
-        if role is None:
+        if role_id is None:
             role_enum = Role.PUBLIC
         else:
-            role_enum = Role(role)
+            role_enum = Role(role_id)
     except ValueError:
         raise errors.UnauthorizedError
 
