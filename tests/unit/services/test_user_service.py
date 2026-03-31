@@ -59,9 +59,7 @@ def test_get_user_no_args_raises(db_session: MagicMock):
     """Test that get_user raises ValueError when no arguments are provided."""
     service = UserService(db_session)
 
-    with pytest.raises(
-        ValueError, match="Either user ID or email must be provided."
-    ):
+    with pytest.raises(ValueError, match="Either user ID or email must be provided."):
         service.get_user()
 
 
@@ -248,7 +246,9 @@ def test_authenticate_user_success(db_session: MagicMock, monkeypatch):
     )
 
     service = UserService(db_session)
-    result = service.authenticate_user(email="alice@example.com", password="password123")
+    result = service.authenticate_user(
+        email="alice@example.com", password="password123"
+    )
 
     assert result is user
 
@@ -274,7 +274,9 @@ def test_authenticate_user_not_found(db_session: MagicMock):
     service = UserService(db_session)
 
     with pytest.raises(errors.UserNotFoundError):
-        service.authenticate_user(email="nonexistent@example.com", password="password123")
+        service.authenticate_user(
+            email="nonexistent@example.com", password="password123"
+        )
 
 
 def test_verify_password(db_session: MagicMock, monkeypatch):
@@ -346,7 +348,9 @@ def test_authorize_user_success(db_session: MagicMock, monkeypatch):
     )
     monkeypatch.setattr(
         "timestamp.services.user.UserService.get_user",
-        lambda _, user_id=None, email=None: User(id=1, email="alice@example.com", password="pw"),
+        lambda _, user_id=None, email=None: User(
+            id=1, email="alice@example.com", password="pw"
+        ),
     )
 
     service = UserService(db_session, jwt_config=jwt_config)
@@ -378,7 +382,9 @@ def test_authorize_user_invalid_token(db_session: MagicMock, monkeypatch):
 
 def test_update_user_role_success(db_session: MagicMock):
     """Test that updating a user's role works correctly."""
-    user = User(id=1, email="alice@example.com", password="pw", role_id=Role.EMPLOYEE.value)
+    user = User(
+        id=1, email="alice@example.com", password="pw", role_id=Role.EMPLOYEE.value
+    )
     db_session.first.return_value = user
 
     service = UserService(db_session)
