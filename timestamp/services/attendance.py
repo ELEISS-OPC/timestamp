@@ -5,6 +5,7 @@ from typing import Optional
 from timestamp.core.config import env
 from timestamp.utils import errors
 import pytz
+from typing import Union, Literal
 
 
 class AttendanceService:
@@ -83,3 +84,11 @@ class AttendanceService:
         """Check if the user is currently clocked in."""
         latest_attendance = self.get_latest_attendance(user_id)
         return latest_attendance is not None and latest_attendance.time_out is None
+
+    def current_status(
+        self, user_id: int
+    ) -> Union[Literal["timed_in"], Literal["timed_out"]]:
+        """Get the current status of the user (timed in or timed out)."""
+        if self.is_user_clocked_in(user_id):
+            return "timed_in"
+        return "timed_out"

@@ -134,6 +134,18 @@ async def time_out(
     summary="Current Status of User",
     description="Returns the current status of the user (timed in or timed out).",
     status_code=status.HTTP_200_OK,
+    response_model=attendance_schemas.CurrentStatusResponse,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            "model": Detail,
+            "description": "Forbidden access to view the current status of the user.",
+        },
+        status.HTTP_404_NOT_FOUND: {"model": Detail, "description": "User not found."},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "model": Detail,
+            "description": "Internal server error.",
+        },
+    },
 )
 async def current_status(
     user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
@@ -152,7 +164,16 @@ async def current_status(
     if user.role_id in [Role.EMPLOYEE.value] and (user_id != user.id):
         raise errors.ForbiddenAccessError
 
-    return {"message": "ok"}
+    try:
+        status_str = attendance_service.current_status(user_id)
+        return attendance_schemas.CurrentStatusResponse(status=status_str)
+    except errors.NoRecordsFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while retrieving the current status of the user.",
+        ) from e
 
 
 @router.get(

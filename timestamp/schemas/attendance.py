@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
+from typing import Literal, Union
 
 
 class Coordinates(BaseModel):
@@ -29,6 +30,31 @@ class TimeInResponse(BaseModel):
 class TimeOutResponse(BaseModel):
     time_out: datetime = Field(
         ..., description="The timestamp when the user clocked out"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TimeInAndOut(BaseModel):
+    time_in: datetime = Field(..., description="The timestamp when the user clocked in")
+    time_out: datetime = Field(
+        ..., description="The timestamp when the user clocked out"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class TimeInHistoryResponse(BaseModel):
+    history: list[TimeInAndOut] = Field(
+        ..., description="List of time in and out records for the user"
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class CurrentStatusResponse(BaseModel):
+    status: Union[Literal["timed_in"], Literal["timed_out"]] = Field(
+        ..., description="Current status of the user (timed in or timed out)"
     )
 
     model_config = ConfigDict(from_attributes=True)
