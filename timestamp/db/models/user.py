@@ -33,7 +33,7 @@ class User(Base, Default):
         URL to the user's avatar image. May be ``None``.
     """
 
-    __tablename__ = "user"
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(nullable=False)

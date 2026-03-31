@@ -38,7 +38,7 @@ class Attendance(Base, Default):
     __tablename__ = "attendance"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     time_in: Mapped[datetime] = mapped_column(nullable=False)
     time_out: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     time_in_selfie: Mapped[str] = mapped_column(nullable=False)
