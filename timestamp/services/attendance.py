@@ -267,7 +267,7 @@ class AttendanceService:
         ]
 
     def get_bradford_summary(
-        self, aggregate: Literal["median", "average", "minimum", "maximum"]
+        self, aggregate: Literal["median", "average", "minimum", "maximum", "sum"]
     ):
         """
         Calculates the Bradford Factor for all users and returns the
@@ -279,7 +279,7 @@ class AttendanceService:
 
         Parameters
         ----------
-        aggregate : Literal["median", "average", "minimum", "maximum"]
+        aggregate : Literal["median", "average", "minimum", "maximum", "sum"]
             The type of aggregate statistic to return for the Bradford Scores.
 
         Returns
@@ -317,6 +317,7 @@ class AttendanceService:
             "median": statistics.median,
             "minimum": min,
             "maximum": max,
+            "sum": sum,
         }
 
         if aggregate not in stats_map:
