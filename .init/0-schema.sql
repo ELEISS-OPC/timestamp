@@ -47,7 +47,7 @@ CREATE TABLE users (
 -- =========================
 CREATE TABLE attendance (
     id SERIAL PRIMARY KEY,
-    employee_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
 
     time_in TIMESTAMP NOT NULL,
     time_out TIMESTAMP,
@@ -61,8 +61,8 @@ CREATE TABLE attendance (
     time_out_latitude FLOAT,
     time_out_longitude FLOAT,
 
-    CONSTRAINT fk_attendance_employee
-        FOREIGN KEY (employee_id)
+    CONSTRAINT fk_attendance_user
+        FOREIGN KEY (user_id)
         REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -72,5 +72,5 @@ CREATE TABLE attendance (
 -- INDEXES
 -- =========================
 CREATE INDEX idx_user_role_id ON users(role_id);
-CREATE INDEX idx_attendance_employee_id ON attendance(employee_id);
+CREATE INDEX idx_attendance_user_id ON attendance(user_id);
 CREATE INDEX idx_attendance_time_in ON attendance(time_in);
