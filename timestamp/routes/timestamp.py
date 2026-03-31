@@ -200,7 +200,7 @@ async def time_in_history(
     """
     Returns the time in history of the user.
 
-    Access Level: Employee
+    Access Level: Employee, Officer, Admin
 
     Raises:
         HTTPException: If the user is not found.
