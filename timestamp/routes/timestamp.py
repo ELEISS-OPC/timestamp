@@ -1,21 +1,34 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, HTTPException
 
 from timestamp.dependencies import Attendance_Service, AuthenticatedUser
+from timestamp.schemas import attendance as attendance_schemas
+from timestamp.schemas import Role, Detail
 from timestamp.utils import errors
 from timestamp.utils.validation import validate_role
-from timestamp.schemas.enums import Role
 
 router = APIRouter(prefix="/timestamp", tags=["Timestamp"])
 
 
-@router.get(
-    "/time-in/{user_id}",
+@router.post(
+    "/time-in",
     summary="Time In User",
     description="Time in the user and returns the current timestamp.",
     status_code=status.HTTP_200_OK,
+    response_model=attendance_schemas.TimeInResponse,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "model": Detail,
+            "description": "User is already timed in.",
+        },
+        status.HTTP_404_NOT_FOUND: {"model": Detail, "description": "User not found."},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "model": Detail,
+            "description": "Internal server error.",
+        },
+    },
 )
 async def time_in(
-    user_id: int,
+    data: attendance_schemas.TimeInRequest,
     attendance_service: Attendance_Service,
     user: AuthenticatedUser,
 ):
@@ -32,20 +45,52 @@ async def time_in(
         HTTPException: If the user is not authorized to time in.
     """
     validate_role(user.role_id, "oe")
-    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (
+        data.user_id != user.id
+    ):
         raise errors.ForbiddenAccessError
 
-    return {"message": "ok"}
+    try:
+        record = attendance_service.time_in(
+            user_id=data.user_id,
+            latitude=data.coordinates.latitude,
+            longitude=data.coordinates.longitude,
+            selfie=data.selfie,
+        )
+        return attendance_schemas.TimeInResponse.model_validate(record)
+    except errors.AlreadyTimedInError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+    except errors.UserNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while timing in the user.",
+        ) from e
 
 
-@router.get(
-    "/time-out/{user_id}",
+@router.put(
+    "/time-out",
     summary="Time Out User",
     description="Time out the user and returns the current timestamp.",
     status_code=status.HTTP_200_OK,
+    response_model=attendance_schemas.TimeOutResponse,
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "model": Detail,
+            "description": "User is already timed out or hasn't timed in yet.",
+        },
+        status.HTTP_404_NOT_FOUND: {"model": Detail, "description": "User not found."},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {
+            "model": Detail,
+            "description": "Internal server error.",
+        },
+    },
 )
 async def time_out(
-    user_id: int, attendance_service: Attendance_Service, user: AuthenticatedUser
+    data: attendance_schemas.TimeOutRequest,
+    attendance_service: Attendance_Service,
+    user: AuthenticatedUser,
 ):
     """
     Time out the user and returns the current timestamp.
@@ -60,10 +105,28 @@ async def time_out(
         HTTPException: If the user is not authorized to time out.
     """
     validate_role(user.role_id, "oe")
-    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (user_id != user.id):
+    if user.role_id in [Role.EMPLOYEE.value, Role.OFFICER.value] and (
+        data.user_id != user.id
+    ):
         raise errors.ForbiddenAccessError
 
-    return {"message": "ok"}
+    try:
+        record = attendance_service.time_out(
+            user_id=data.user_id,
+            latitude=data.coordinates.latitude,
+            longitude=data.coordinates.longitude,
+            selfie=data.selfie,
+        )
+        return attendance_schemas.TimeOutResponse.model_validate(record)
+    except errors.AlreadyTimedOutError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=e.message)
+    except errors.UserNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while timing out the user.",
+        ) from e
 
 
 @router.get(
