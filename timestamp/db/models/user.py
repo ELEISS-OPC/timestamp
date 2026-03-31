@@ -9,9 +9,9 @@ from .attendance import Attendance
 from .base import Base, Default
 
 
-class Employee(Base, Default):
+class User(Base, Default):
     """
-    Employee model representing a user in the system.
+    User model representing a user/employee in the system.
 
     Attributes
     ----------
@@ -23,7 +23,7 @@ class Employee(Base, Default):
         Middle name of the user. May be ``None``.
     last_name : str
         Last name of the user.
-    email : Optional[str]
+    email : str
         Unique email address of the user. May be ``None``.
     password : str
         Hashed password of the user.
@@ -33,11 +33,13 @@ class Employee(Base, Default):
         URL to the user's avatar image. May be ``None``.
     """
 
-    __tablename__ = "employee"
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(unique=True, nullable=False)
-    email: Mapped[Optional[str]] = mapped_column(unique=True, nullable=True)
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    middle_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    last_name: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=True)
     password: Mapped[str]
     role_id: Mapped[int] = mapped_column(
         ForeignKey("role.id"), nullable=False, default=Role.EMPLOYEE.value

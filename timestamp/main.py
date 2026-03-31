@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from timestamp import routes
+
 app = FastAPI()
 
 app.add_middleware(
@@ -11,7 +13,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello, World!"}
+app.include_router(routes.root.router)
+app.include_router(routes.timestamp.router)
+app.include_router(routes.auth.router)
