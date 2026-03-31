@@ -1,14 +1,16 @@
-from sqlalchemy.orm import Session
-from timestamp.db.models import Attendance
-from datetime import datetime
-from typing import Optional
-from timestamp.core.config import env
-from timestamp.utils import errors
-import pytz
-from typing import Union, Literal
-from sqlalchemy import func, extract
-from dateutil.relativedelta import relativedelta
 import statistics
+from datetime import datetime
+from typing import Literal, Optional, Union
+
+import pytz
+from dateutil.relativedelta import relativedelta
+from psycopg2.errors import ForeignKeyViolation  # type: ignore[attr-defined]
+from sqlalchemy import exc, extract, func
+from sqlalchemy.orm import Session
+
+from timestamp.core.config import env
+from timestamp.db.models import Attendance
+from timestamp.utils import errors
 
 
 class AttendanceService:
@@ -64,17 +66,26 @@ class AttendanceService:
         except errors.NoRecordsFoundError:
             pass  # No records found, so the user is not clocked in
 
-        attendance_record = Attendance(
-            user_id=user_id,
-            time_in=datetime.now(tz=pytz.timezone(env.TIMEZONE)),
-            time_in_selfie=selfie,
-            time_in_latitude=latitude,
-            time_in_longitude=longitude,
-        )
-        self.db_session.add(attendance_record)
-        self.db_session.commit()
+        try:
+            attendance_record = Attendance(
+                user_id=user_id,
+                time_in=datetime.now(tz=pytz.timezone(env.TIMEZONE)),
+                time_in_selfie=selfie,
+                time_in_latitude=latitude,
+                time_in_longitude=longitude,
+            )
 
-        return attendance_record
+            self.db_session.add(attendance_record)
+            self.db_session.commit()
+
+            return attendance_record
+        except exc.IntegrityError as e:
+            self.db_session.rollback()
+
+            if isinstance(e.orig, ForeignKeyViolation):
+                raise errors.UserNotFoundError(user_id=user_id)
+
+            raise e
 
     def time_out(
         self,
@@ -117,9 +128,16 @@ class AttendanceService:
         else:
             self.db_session.rollback()
             raise errors.AlreadyTimedOutError(user_id=user_id)
+        try:
+            self.db_session.commit()
+            return latest_attendance
+        except exc.IntegrityError as e:
+            self.db_session.rollback()
 
-        self.db_session.commit()
-        return latest_attendance
+            if isinstance(e.orig, ForeignKeyViolation):
+                raise errors.UserNotFoundError(user_id=user_id)
+
+            raise e
 
     def get_latest_attendance(self, user_id: int):
         """
