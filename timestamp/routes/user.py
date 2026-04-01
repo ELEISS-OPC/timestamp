@@ -53,6 +53,16 @@ async def create_user(
     """
     validate_role(authenticated_user.role_id, "o")
     try:
+        # No one can create admin accounts
+        if user.role_id == Role.ADMIN:
+            raise errors.ForbiddenAccessError
+
+        # Officers can only create employee accounts
+        if (authenticated_user.role_id == Role.OFFICER) and (
+            user.role_id != Role.EMPLOYEE
+        ):
+            raise errors.ForbiddenAccessError
+
         new_user: User = user_service.create_user(
             email=user.email,
             password=user.password,
