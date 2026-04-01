@@ -29,3 +29,15 @@ class JWTAlgorithm(str, Enum):
     """
 
     HS256 = "HS256"
+
+
+class ImageFormat(str, Enum):
+    """
+    Supported image formats for upload and processing.
+    """
+
+    JPG = "JPG"
+    JPEG = "JPEG"
+    PNG = "PNG"
+    AVIF = "AVIF"
+    WEBP = "WEBP"

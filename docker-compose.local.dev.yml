@@ -42,6 +42,26 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+  # This service initializes the MinIO bucket
+  s3-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z-cpuv1
+    container_name: timestamp-minio-dev-init
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: >
+          /bin/sh -c "
+          mc alias set local http://s3:9000 ${S3_ACCESS_KEY:-minioadmin} ${S3_SECRET_KEY:-minioadmin};
+          if mc ls local > /dev/null 2>&1; then
+            echo 'Connection successful. Creating bucket...';
+            mc mb --ignore-existing local/${S3_BUCKET_NAME:-timestamp};
+            mc anonymous set download local/${S3_BUCKET_NAME:-timestamp};
+            echo 'Bucket creation sequence complete.';
+          else
+            echo 'ERROR: Could not connect to MinIO service';
+            exit 1;
+          fi"
+    restart: "no"
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4:latest

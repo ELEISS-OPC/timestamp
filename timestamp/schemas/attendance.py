@@ -12,13 +12,15 @@ class Coordinates(BaseModel):
 class TimeInRequest(BaseModel):
     user_id: int = Field(..., description="ID of the user clocking in or out")
     coordinates: Coordinates
-    selfie: str = Field(..., description="Base64-encoded selfie image")
+    selfie: str = Field(..., description="URL of the selfie image")
+    selfie_preview: str = Field(..., description="URL of the selfie preview image")
 
 
 class TimeOutRequest(BaseModel):
     user_id: int = Field(..., description="ID of the user clocking in or out")
     coordinates: Coordinates
-    selfie: str = Field(..., description="Base64-encoded selfie image")
+    selfie: str = Field(..., description="URL of the selfie image")
+    selfie_preview: str = Field(..., description="URL of the selfie preview image")
 
 
 class TimeInResponse(BaseModel):

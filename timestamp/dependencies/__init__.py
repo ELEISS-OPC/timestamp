@@ -3,6 +3,7 @@ from .db import DB_Session
 from .services import (
     Attendance_Service,
     User_Service,
+    Image_Service,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "DB_Session",
     "User_Service",
     "Attendance_Service",
+    "Image_Service",
 ]

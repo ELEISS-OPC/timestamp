@@ -31,6 +31,8 @@ class User(Base, Default):
         Foreign key identifier for the role associated with the user (e.g., ``admin (3)``, ``officer (2)``, ``employee (1)``).
     avatar_url : Optional[str]
         URL to the user's avatar image. May be ``None``.
+    avatar_url_preview : Optional[str]
+        URL to the preview of the user's avatar image. May be ``None``.
     """
 
     __tablename__ = "users"
@@ -45,5 +47,6 @@ class User(Base, Default):
         ForeignKey("role.id"), nullable=False, default=Role.EMPLOYEE.value
     )
     avatar_url: Mapped[Optional[str]] = mapped_column(nullable=True)
+    avatar_url_preview: Mapped[Optional[str]] = mapped_column(nullable=True)
 
     attendance: Mapped[List["Attendance"]] = relationship()

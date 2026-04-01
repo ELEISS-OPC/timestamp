@@ -8,6 +8,7 @@ from timestamp.schemas.auth import JWTConfig
 from timestamp.schemas.enums import JWTAlgorithm
 
 from .db import DB_Session
+from .storage import S3_Client
 
 
 def get_user_service(
@@ -29,7 +30,14 @@ def get_attendance_service(
     return services.AttendanceService(db_session)
 
 
+def get_image_service(
+    s3_client: S3_Client,
+) -> services.ImageService:
+    return services.ImageService(s3=s3_client)
+
+
 User_Service = Annotated[services.UserService, Depends(get_user_service)]
 Attendance_Service = Annotated[
     services.AttendanceService, Depends(get_attendance_service)
 ]
+Image_Service = Annotated[services.ImageService, Depends(get_image_service)]

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class S3Config(BaseModel):
@@ -24,3 +24,16 @@ class S3Config(BaseModel):
     secret_key: str
     bucket_name: str = "timestamp-selfies"
     region: str = "apac"
+
+
+class ImageSet(BaseModel):
+    """
+    Represents a set of images including the original and its preview.
+    """
+
+    original: str = Field(
+        ..., description="Original image", examples=["123940712123.jpg"]
+    )
+    preview: str = Field(
+        ..., description="Preview image", examples=["1412312341234.jpg"]
+    )

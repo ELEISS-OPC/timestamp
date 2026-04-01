@@ -34,6 +34,7 @@ CREATE TABLE users (
     password TEXT NOT NULL,
     role_id INTEGER NOT NULL,
     avatar_url TEXT,
+    avatar_url_preview TEXT,
 
     CONSTRAINT fk_user_role
         FOREIGN KEY (role_id)
@@ -53,7 +54,9 @@ CREATE TABLE attendance (
     time_out TIMESTAMP,
 
     time_in_selfie TEXT NOT NULL,
+    time_in_selfie_preview TEXT NOT NULL,
     time_out_selfie TEXT,
+    time_out_selfie_preview TEXT,
 
     time_in_latitude FLOAT NOT NULL,
     time_in_longitude FLOAT NOT NULL,

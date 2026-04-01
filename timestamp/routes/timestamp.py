@@ -57,6 +57,7 @@ async def time_in(
             latitude=data.coordinates.latitude,
             longitude=data.coordinates.longitude,
             selfie=data.selfie,
+            selfie_preview=data.selfie_preview,
         )
         return attendance_schemas.TimeInResponse.model_validate(record)
     except errors.AlreadyTimedInError as e:
@@ -117,6 +118,7 @@ async def time_out(
             latitude=data.coordinates.latitude,
             longitude=data.coordinates.longitude,
             selfie=data.selfie,
+            selfie_preview=data.selfie_preview,
         )
         return attendance_schemas.TimeOutResponse.model_validate(record)
     except errors.AlreadyTimedOutError as e:
