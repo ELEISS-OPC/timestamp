@@ -38,18 +38,20 @@ async def get_user(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=user_schemas.UserCreateRequest,
+    response_model=user_schemas.UserCreateResponse,
     responses={status.HTTP_409_CONFLICT: {"model": Detail}},
 )
 async def create_user(
-    user: user_schemas.UserCreateRequest, user_service: User_Service
-) -> user_schemas.UserCreateRequest:
+    user: user_schemas.UserCreateRequest,
+    user_service: User_Service,
+    authenticated_user: AuthenticatedUser,
+) -> user_schemas.UserCreateResponse:
     """
     Create a new user.
 
     Access Level: Officer, Admin
     """
-    validate_role(user.role_id, "o")
+    validate_role(authenticated_user.role_id, "o")
     try:
         new_user: User = user_service.create_user(
             email=user.email,
@@ -59,7 +61,7 @@ async def create_user(
             last_name=user.last_name,
             role=Role(user.role_id),
         )
-        return user_schemas.UserCreateRequest.model_validate(new_user)
+        return user_schemas.UserCreateResponse.model_validate(new_user)
     except errors.UserExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
