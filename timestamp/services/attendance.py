@@ -34,6 +34,7 @@ class AttendanceService:
         latitude: float,
         longitude: float,
         selfie: Optional[str] = None,
+        selfie_preview: Optional[str] = None,
     ):
         """
         Record a time-in event for a user.
@@ -48,6 +49,9 @@ class AttendanceService:
             Longitude where the time-in was recorded.
         selfie : Optional[str], optional
             URL for the time-in selfie, by default None.
+        selfie_preview : Optional[str], optional
+            URL for the time-in selfie preview, by default None.
+
 
         Returns
         -------
@@ -71,6 +75,7 @@ class AttendanceService:
                 user_id=user_id,
                 time_in=datetime.now(tz=pytz.timezone(env.TIMEZONE)),
                 time_in_selfie=selfie,
+                time_in_selfie_preview=selfie_preview,
                 time_in_latitude=latitude,
                 time_in_longitude=longitude,
             )
@@ -93,6 +98,7 @@ class AttendanceService:
         latitude: float,
         longitude: float,
         selfie: Optional[str] = None,
+        selfie_preview: Optional[str] = None,
     ):
         """
         Record a time-out event for a user.
@@ -107,6 +113,9 @@ class AttendanceService:
             Longitude where the time-out was recorded.
         selfie : Optional[str], optional
             URL for the time-out selfie, by default None.
+        selfie_preview : Optional[str], optional
+            URL for the time-out selfie preview, by default None.
+
 
         Returns
         -------
@@ -125,6 +134,7 @@ class AttendanceService:
             latest_attendance.time_out_latitude = latitude
             latest_attendance.time_out_longitude = longitude
             latest_attendance.time_out_selfie = selfie
+            latest_attendance.time_out_selfie_preview = selfie_preview
         else:
             self.db_session.rollback()
             raise errors.AlreadyTimedOutError(user_id=user_id)
