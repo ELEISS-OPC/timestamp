@@ -21,7 +21,12 @@ class UserCreateRequest(BaseModel):
     middle_name: Optional[str] = Field(default=None)
     last_name: str
     # Refer to Role Enum in timestamp.schemas.enums.Role for valid role_id values
-    role_id: int = Field(default=1, ge=1, le=3)
+    role_id: int = Field(
+        default=1,
+        ge=1,
+        le=2,
+        description="Only Employee (1) or Officer (2) roles can be assigned via this endpoint.",
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -63,6 +68,10 @@ class UserUpdateAvatarRequest(BaseModel):
 class UserUpdateRoleRequest(BaseModel):
     id: int
     # Refer to Role Enum in timestamp.schemas.enums.Role for valid role_id values
-    role_id: int = Field(ge=1, le=3)
+    role_id: int = Field(
+        ge=1,
+        le=2,
+        description="Only Employee (1) or Officer (2) roles can be assigned via this endpoint.",
+    )
 
     model_config = ConfigDict(from_attributes=True)
