@@ -14,7 +14,6 @@ ENV DEPLOYMENT=docker
 
 COPY timestamp/ ./timestamp/
 COPY README.md .
-COPY LICENSE .
 COPY requirements.txt .
 
 RUN echo "import urllib.request; print(urllib.request.urlopen('http://localhost:8000/health/').read())" > healthcheck.py
