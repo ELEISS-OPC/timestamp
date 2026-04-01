@@ -90,6 +90,7 @@ class UserService:
             self.db_session.rollback()
             if isinstance(e.orig, UniqueViolation):
                 raise errors.UserExistsError(email=email)
+            raise e
 
         return new_user
 
@@ -247,9 +248,12 @@ class UserService:
         user.email = new_email
         try:
             self.db_session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             self.db_session.rollback()
-            raise errors.UserExistsError(new_email)
+            if isinstance(e.orig, UniqueViolation):
+                raise errors.UserExistsError(new_email)
+            raise e
+
         return user
 
     def update_user_password(
