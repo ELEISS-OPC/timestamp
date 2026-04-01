@@ -2,6 +2,7 @@ import time
 from unittest.mock import MagicMock
 
 import pytest
+from psycopg2.errors import UniqueViolation  # type: ignore[attr-defined]
 from sqlalchemy.exc import IntegrityError
 
 from timestamp.db.models import User
@@ -41,7 +42,7 @@ def test_create_user_duplicate_raises(db_session: MagicMock):
     db_session.commit.side_effect = IntegrityError(
         statement=None,
         params=None,
-        orig=Exception(),
+        orig=UniqueViolation(),
     )
 
     service = UserService(db_session)
@@ -223,7 +224,7 @@ def test_update_user_duplicate_email_raises(db_session: MagicMock):
     db_session.commit.side_effect = IntegrityError(
         statement=None,
         params=None,
-        orig=Exception(),
+        orig=UniqueViolation(),
     )
 
     service = UserService(db_session)
