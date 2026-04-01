@@ -4,6 +4,7 @@ from typing import Optional, Union
 import jwt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from psycopg2.errors import UniqueViolation  # type: ignore[attr-defined]
 
 from timestamp.db.models import User
 from timestamp.schemas.auth import JWTConfig
@@ -85,9 +86,11 @@ class UserService:
         try:
             self.db_session.add(new_user)
             self.db_session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             self.db_session.rollback()
-            raise errors.UserExistsError(email or first_name)
+            if isinstance(e.orig, UniqueViolation):
+                raise errors.UserExistsError(email=email)
+
         return new_user
 
     def get_user(
