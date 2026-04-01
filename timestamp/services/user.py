@@ -458,7 +458,8 @@ class UserService:
         user = self._get_user_by_id(user_id)
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
-        user.avatar_url = img or preview_img
+        user.avatar_url = img
+        user.avatar_url_preview = preview_img
         self.db_session.commit()
         return user
 
