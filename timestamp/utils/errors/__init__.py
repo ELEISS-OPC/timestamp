@@ -6,6 +6,7 @@ from .auth import (
     UnauthorizedError,
 )
 from .user import UserExistsError, UserNotFoundError
+from .image import UnsupportedImageFormatError
 
 __all__ = [
     "AlreadyTimedInError",
@@ -13,6 +14,7 @@ __all__ = [
     "NoRecordsFoundError",
     "UserNotFoundError",
     "UserExistsError",
+    "UnsupportedImageFormatError",
     "InvalidCredentialsError",
     "InvalidPasswordError",
     "ForbiddenAccessError",
