@@ -285,6 +285,13 @@ async def change_user_role(
     """
     validate_role(authenticated_user.role_id, "a")
     try:
+        user_to_update = user_service.get_user(user_id=user.id)
+
+        # No role changes allowed for admins, whether promotion/demotion or self-demotion
+        if user_to_update.role_id == Role.ADMIN:
+            raise errors.ForbiddenAccessError
+
+        # No one can be promoted to admin
         if user.role_id == Role.ADMIN:
             raise errors.ForbiddenAccessError
 
