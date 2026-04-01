@@ -5,11 +5,11 @@ from typing import Optional
 class UserMeResponse(BaseModel):
     email: str
     first_name: str
-    middle_name: Optional[str]
+    middle_name: Optional[str] = Field(default=None)
     last_name: str
     role_id: int
-    avatar_url: Optional[str]
-    avatar_url_preview: Optional[str]
+    avatar_url: Optional[str] = Field(default=None)
+    avatar_url_preview: Optional[str] = Field(default=None)
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -18,7 +18,7 @@ class UserCreateRequest(BaseModel):
     email: str
     password: str
     first_name: str
-    middle_name: Optional[str]
+    middle_name: Optional[str] = Field(default=None)
     last_name: str
     # Refer to Role Enum in timestamp.schemas.enums.Role for valid role_id values
     role_id: int = Field(default=1, ge=1, le=3)
@@ -30,7 +30,7 @@ class UserCreateResponse(BaseModel):
     id: int
     email: str
     first_name: str
-    middle_name: Optional[str]
+    middle_name: Optional[str] = Field(default=None)
     last_name: str
     role_id: int
 
