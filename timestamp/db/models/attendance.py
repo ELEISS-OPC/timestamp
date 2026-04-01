@@ -23,6 +23,10 @@ class Attendance(Base, Default):
         Timestamp when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_in_selfie : str
         URL to the selfie taken when the user clocked in.
+    time_in_selfie_preview : str
+        URL to the preview of the selfie taken when the user clocked in.
+    time_out_selfie_preview : Optional[str]
+        URL to the preview of the selfie taken when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_out_selfie : Optional[str]
         URL to the selfie taken when the user clocked out. May be ``None`` if the user has not clocked out yet.
     time_in_latitude : float
@@ -42,7 +46,9 @@ class Attendance(Base, Default):
     time_in: Mapped[datetime] = mapped_column(nullable=False)
     time_out: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     time_in_selfie: Mapped[str] = mapped_column(nullable=False)
+    time_in_selfie_preview: Mapped[str] = mapped_column(nullable=True)
     time_out_selfie: Mapped[Optional[str]] = mapped_column(nullable=True)
+    time_out_selfie_preview: Mapped[Optional[str]] = mapped_column(nullable=True)
     time_in_latitude: Mapped[float] = mapped_column(nullable=False)
     time_in_longitude: Mapped[float] = mapped_column(nullable=False)
     time_out_latitude: Mapped[Optional[float]] = mapped_column(nullable=True)
