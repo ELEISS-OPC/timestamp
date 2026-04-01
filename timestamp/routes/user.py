@@ -279,7 +279,7 @@ async def update_user_img(
 
 
 @router.put(
-    "/role/",
+    "/role",
     status_code=status.HTTP_200_OK,
 )
 async def change_user_role(
