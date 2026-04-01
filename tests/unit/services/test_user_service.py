@@ -2,6 +2,7 @@ import time
 from unittest.mock import MagicMock
 
 import pytest
+from psycopg2.errors import UniqueViolation  # type: ignore[attr-defined]
 from sqlalchemy.exc import IntegrityError
 
 from timestamp.db.models import User
@@ -41,7 +42,7 @@ def test_create_user_duplicate_raises(db_session: MagicMock):
     db_session.commit.side_effect = IntegrityError(
         statement=None,
         params=None,
-        orig=Exception(),
+        orig=UniqueViolation(),
     )
 
     service = UserService(db_session)
@@ -223,7 +224,7 @@ def test_update_user_duplicate_email_raises(db_session: MagicMock):
     db_session.commit.side_effect = IntegrityError(
         statement=None,
         params=None,
-        orig=Exception(),
+        orig=UniqueViolation(),
     )
 
     service = UserService(db_session)
@@ -388,7 +389,7 @@ def test_update_user_role_success(db_session: MagicMock):
     db_session.first.return_value = user
 
     service = UserService(db_session)
-    updated_user = service.toggle_user_role(user_id=1)
+    updated_user = service.change_user_role(user_id=1, role_id=Role.ADMIN.value)
 
     assert updated_user.role_id == Role.ADMIN.value
     db_session.commit.assert_called_once()
@@ -400,4 +401,4 @@ def test_update_user_role_user_not_found(db_session: MagicMock):
     service = UserService(db_session)
 
     with pytest.raises(errors.UserNotFoundError):
-        service.toggle_user_role(user_id=999)
+        service.change_user_role(user_id=999, role_id=Role.ADMIN.value)

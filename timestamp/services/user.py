@@ -4,6 +4,7 @@ from typing import Optional, Union
 import jwt
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from psycopg2.errors import UniqueViolation  # type: ignore[attr-defined]
 
 from timestamp.db.models import User
 from timestamp.schemas.auth import JWTConfig
@@ -85,9 +86,12 @@ class UserService:
         try:
             self.db_session.add(new_user)
             self.db_session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             self.db_session.rollback()
-            raise errors.UserExistsError(email or first_name)
+            if isinstance(e.orig, UniqueViolation):
+                raise errors.UserExistsError(email=email)
+            raise e
+
         return new_user
 
     def get_user(
@@ -244,9 +248,12 @@ class UserService:
         user.email = new_email
         try:
             self.db_session.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             self.db_session.rollback()
-            raise errors.UserExistsError(new_email)
+            if isinstance(e.orig, UniqueViolation):
+                raise errors.UserExistsError(new_email)
+            raise e
+
         return user
 
     def update_user_password(
@@ -455,18 +462,21 @@ class UserService:
         user = self._get_user_by_id(user_id)
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
-        user.avatar_url = img or preview_img
+        user.avatar_url = img
+        user.avatar_url_preview = preview_img
         self.db_session.commit()
         return user
 
-    def toggle_user_role(self, user_id: int) -> User:
+    def change_user_role(self, user_id: int, role_id: int) -> User:
         """
-        Toggle the role of an existing user between 'admin' and 'user'.
+        Change the role of an existing user.
 
         Parameters
         ----------
         user_id : int
-            The unique ID of the user whose role is to be toggled.
+            The unique ID of the user whose role is to be changed.
+        role_id : int
+            The new role ID for the user.
 
         Returns
         -------
@@ -486,10 +496,7 @@ class UserService:
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
 
-        if user.role_id == Role.ADMIN.value:
-            user.role_id = Role.EMPLOYEE.value
-        else:
-            user.role_id = Role.ADMIN.value
+        user.role_id = role_id
 
         self.db_session.commit()
         return user

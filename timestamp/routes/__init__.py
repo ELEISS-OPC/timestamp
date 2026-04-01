@@ -1,3 +1,3 @@
-from . import root, timestamp, auth, image, health
+from . import root, timestamp, auth, image, health, user
 
-__all__ = ["root", "timestamp", "auth", "image", "health"]
+__all__ = ["root", "timestamp", "auth", "image", "health", "user"]
