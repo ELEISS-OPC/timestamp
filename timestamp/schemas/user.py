@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 
 
@@ -7,9 +7,11 @@ class UserMeResponse(BaseModel):
     first_name: str
     middle_name: Optional[str]
     last_name: str
-    role_id: str
+    role_id: int
     avatar_url: Optional[str]
     avatar_url_preview: Optional[str]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserCreateRequest(BaseModel):
@@ -21,10 +23,14 @@ class UserCreateRequest(BaseModel):
     # Refer to Role Enum in timestamp.schemas.enums.Role for valid role_id values
     role_id: int = Field(default=1, ge=1, le=3)
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserUpdateEmailRequest(BaseModel):
     id: int
     email: str
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdatePasswordRequest(BaseModel):
@@ -32,14 +38,20 @@ class UserUpdatePasswordRequest(BaseModel):
     old_password: str
     new_password: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserUpdateAvatarRequest(BaseModel):
     id: int
     original_filename: str
     preview_filename: str
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class UserUpdateRoleRequest(BaseModel):
     id: int
     # Refer to Role Enum in timestamp.schemas.enums.Role for valid role_id values
     role_id: int = Field(ge=1, le=3)
+
+    model_config = ConfigDict(from_attributes=True)
