@@ -459,14 +459,16 @@ class UserService:
         self.db_session.commit()
         return user
 
-    def toggle_user_role(self, user_id: int) -> User:
+    def change_user_role(self, user_id: int, role_id: int) -> User:
         """
-        Toggle the role of an existing user between 'admin' and 'user'.
+        Change the role of an existing user.
 
         Parameters
         ----------
         user_id : int
-            The unique ID of the user whose role is to be toggled.
+            The unique ID of the user whose role is to be changed.
+        role_id : int
+            The new role ID for the user.
 
         Returns
         -------
@@ -486,10 +488,7 @@ class UserService:
         if user is None:
             raise errors.UserNotFoundError(user_id=user_id)
 
-        if user.role_id == Role.ADMIN.value:
-            user.role_id = Role.EMPLOYEE.value
-        else:
-            user.role_id = Role.ADMIN.value
+        user.role_id = role_id
 
         self.db_session.commit()
         return user
