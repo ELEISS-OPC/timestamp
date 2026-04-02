@@ -14,12 +14,12 @@ router = APIRouter(prefix="/user", tags=["User"])
 @router.get(
     "/me",
     status_code=status.HTTP_200_OK,
-    response_model=user_schemas.UserMeResponse,
+    response_model=user_schemas.UserGetInfoResponse,
     responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
 )
 async def get_user(
     user_service: User_Service, authenticated_user: AuthenticatedUser
-) -> user_schemas.UserMeResponse:
+) -> user_schemas.UserGetInfoResponse:
     """
     Get a user's own information.
 
@@ -27,7 +27,7 @@ async def get_user(
     """
     try:
         user: User = user_service.get_user(email=authenticated_user.email)
-        return user_schemas.UserMeResponse.model_validate(user)
+        return user_schemas.UserGetInfoResponse.model_validate(user)
     except errors.UserNotFoundError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -75,6 +75,33 @@ async def create_user(
     except errors.UserExistsError as e:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
+            detail=e.message,
+        )
+
+
+@router.get(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=user_schemas.UserGetInfoResponse,
+    responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
+)
+async def get_user_by_id(
+    user_id: int,
+    user_service: User_Service,
+    authenticated_user: AuthenticatedUser,
+) -> user_schemas.UserGetInfoResponse:
+    """
+    Get a user's information by ID.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    try:
+        user: User = user_service.get_user(user_id=user_id)
+        return user_schemas.UserGetInfoResponse.model_validate(user)
+    except errors.UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=e.message,
         )
 
