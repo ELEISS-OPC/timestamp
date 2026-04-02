@@ -3,6 +3,7 @@ from typing import Optional
 
 
 class UserMeResponse(BaseModel):
+    id: int
     email: str
     first_name: str
     middle_name: Optional[str] = Field(default=None)
