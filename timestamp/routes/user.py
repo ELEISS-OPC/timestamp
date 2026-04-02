@@ -79,6 +79,33 @@ async def create_user(
         )
 
 
+@router.get(
+    "/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=user_schemas.UserMeResponse,
+    responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
+)
+async def get_user_by_id(
+    user_id: int,
+    user_service: User_Service,
+    authenticated_user: AuthenticatedUser,
+) -> user_schemas.UserMeResponse:
+    """
+    Get a user's information by ID.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    try:
+        user: User = user_service.get_user(user_id=user_id)
+        return user_schemas.UserMeResponse.model_validate(user)
+    except errors.UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )
+
+
 @router.delete(
     "/{user_id}",
     status_code=status.HTTP_200_OK,
