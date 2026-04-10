@@ -37,3 +37,23 @@ class ImageSet(BaseModel):
     preview: str = Field(
         ..., description="Preview image", examples=["1412312341234.jpg"]
     )
+
+class ImageUploadRequest(BaseModel):
+    """
+    Request model for uploading an image in base64 format.
+
+    Attributes
+    ----------
+    image : str
+        The base64-encoded image string.
+    """
+
+    image: str = Field(
+        ...,
+        description="Base64-encoded image string.",
+        examples=[
+            "iVBORw0KGgoAAAANSUhEUgAAAAUA"
+            "AAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHx"
+            "gljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+        ],
+    )
