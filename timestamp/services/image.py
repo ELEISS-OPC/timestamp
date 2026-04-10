@@ -53,8 +53,8 @@ class ImageService:
 
         preview_image_name = self._build_image_name(preview_image, format)
 
-        self.upload_to_s3(original_image_name, buffer, format)
-        self.upload_to_s3(preview_image_name, preview_buffer, format)
+        self._upload_to_s3(original_image_name, buffer, format)
+        self._upload_to_s3(preview_image_name, preview_buffer, format)
 
         return ImageSet(original=original_image_name, preview=preview_image_name)
 
@@ -80,7 +80,7 @@ class ImageService:
 
         return self.upload_image(image_bytes)
 
-    def upload_to_s3(self, filename: str, data: BytesIO, format: str):
+    def _upload_to_s3(self, filename: str, data: BytesIO, format: str) -> None:
         """
         Upload a file-like object to the S3 bucket.
 
