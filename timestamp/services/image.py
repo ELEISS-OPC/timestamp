@@ -4,10 +4,11 @@ from io import BytesIO
 
 from botocore import client
 from PIL import Image, ImageFile
+import base64
 
 from timestamp.schemas.enums import ImageFormat
 from timestamp.schemas.image import ImageSet
-from timestamp.utils.errors import UnsupportedImageFormatError
+from timestamp.utils.errors import UnsupportedImageFormatError, DecodingError
 
 
 class ImageService:
@@ -57,6 +58,28 @@ class ImageService:
 
         return ImageSet(original=original_image_name, preview=preview_image_name)
 
+    def upload_image_base64(self, image: str) -> ImageSet:
+        """
+        Upload a base64-encoded image to the S3 bucket.
+
+        Parameters
+        ----------
+        image : str
+            The base64-encoded image string.
+
+        Returns
+        -------
+        ImageSet
+            The set of uploaded images including original and preview.
+        """
+        try:
+            # Decode base64 to bytes
+            image_bytes = base64.b64decode(image)
+        except Exception:
+            raise DecodingError()
+
+        return self.upload_image(image_bytes)
+
     def upload_to_s3(self, filename: str, data: BytesIO, format: str):
         """
         Upload a file-like object to the S3 bucket.
@@ -76,7 +99,6 @@ class ImageService:
             Fileobj=data,
             ExtraArgs={"ContentType": f"image/{format}"},
         )
-
 
     @staticmethod
     def _build_image_name(image_bytes: bytes, format: str) -> str:
