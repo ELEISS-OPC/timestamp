@@ -91,13 +91,13 @@ class ImageService:
         data : BytesIO
             The file data as a file-like object.
         format : str
-            The content type of the file (e.g., "image/jpeg").
+            The content type of the file (e.g., "jpeg").
         """
         self.s3.upload_fileobj(
             Bucket=self.s3.bucket_name,
             Key=filename,
             Fileobj=data,
-            ExtraArgs={"ContentType": f"image/{format}"},
+            ExtraArgs={"ContentType": f"image/{format.lower()}"},
         )
 
     @staticmethod
