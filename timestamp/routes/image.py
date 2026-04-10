@@ -44,9 +44,9 @@ async def upload_image_in_base64(
     """
     Upload images.
 
-    Access Level: Admin
+    Access Level: Admin, Officer, Employee
     """
-    validate_role(authenticated_user.role_id, "a")
+    validate_role(authenticated_user.role_id, "oe")
 
     try:
         return image_service.upload_image_base64(data.image)
