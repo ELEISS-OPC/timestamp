@@ -52,20 +52,31 @@ class ImageService:
 
         preview_image_name = self._build_image_name(preview_image, format)
 
+        self.upload_to_s3(original_image_name, buffer, format)
+        self.upload_to_s3(preview_image_name, preview_buffer, format)
+
+        return ImageSet(original=original_image_name, preview=preview_image_name)
+
+    def upload_to_s3(self, filename: str, data: BytesIO, format: str):
+        """
+        Upload a file-like object to the S3 bucket.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file in the S3 bucket.
+        data : BytesIO
+            The file data as a file-like object.
+        format : str
+            The content type of the file (e.g., "image/jpeg").
+        """
         self.s3.upload_fileobj(
             Bucket=self.s3.bucket_name,
-            Key=original_image_name,
-            Fileobj=buffer,
+            Key=filename,
+            Fileobj=data,
             ExtraArgs={"ContentType": f"image/{format}"},
         )
 
-        self.s3.upload_fileobj(
-            Bucket=self.s3.bucket_name,
-            Key=preview_image_name,
-            Fileobj=preview_buffer,
-            ExtraArgs={"ContentType": f"image/{format}"},
-        )
-        return ImageSet(original=original_image_name, preview=preview_image_name)
 
     @staticmethod
     def _build_image_name(image_bytes: bytes, format: str) -> str:
