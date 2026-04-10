@@ -38,6 +38,7 @@ class ImageSet(BaseModel):
         ..., description="Preview image", examples=["1412312341234.jpg"]
     )
 
+
 class ImageUploadRequest(BaseModel):
     """
     Request model for uploading an image in base64 format.

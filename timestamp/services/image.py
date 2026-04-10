@@ -1,14 +1,14 @@
+import base64
 from functools import cached_property
 from hashlib import md5
 from io import BytesIO
 
 from botocore import client
 from PIL import Image, ImageFile
-import base64
 
 from timestamp.schemas.enums import ImageFormat
 from timestamp.schemas.image import ImageSet
-from timestamp.utils.errors import UnsupportedImageFormatError, DecodingError
+from timestamp.utils.errors import DecodingError, UnsupportedImageFormatError
 
 
 class ImageService:
