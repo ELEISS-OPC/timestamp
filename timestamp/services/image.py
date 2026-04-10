@@ -1,3 +1,4 @@
+import base64
 from functools import cached_property
 from hashlib import md5
 from io import BytesIO
@@ -7,7 +8,7 @@ from PIL import Image, ImageFile
 
 from timestamp.schemas.enums import ImageFormat
 from timestamp.schemas.image import ImageSet
-from timestamp.utils.errors import UnsupportedImageFormatError
+from timestamp.utils.errors import DecodingError, UnsupportedImageFormatError
 
 
 class ImageService:
@@ -52,20 +53,52 @@ class ImageService:
 
         preview_image_name = self._build_image_name(preview_image, format)
 
-        self.s3.upload_fileobj(
-            Bucket=self.s3.bucket_name,
-            Key=original_image_name,
-            Fileobj=buffer,
-            ExtraArgs={"ContentType": f"image/{format}"},
-        )
+        self._upload_to_s3(original_image_name, buffer, format)
+        self._upload_to_s3(preview_image_name, preview_buffer, format)
 
+        return ImageSet(original=original_image_name, preview=preview_image_name)
+
+    def upload_image_base64(self, image: str) -> ImageSet:
+        """
+        Upload a base64-encoded image to the S3 bucket.
+
+        Parameters
+        ----------
+        image : str
+            The base64-encoded image string.
+
+        Returns
+        -------
+        ImageSet
+            The set of uploaded images including original and preview.
+        """
+        try:
+            # Decode base64 to bytes
+            image_bytes = base64.b64decode(image)
+        except Exception:
+            raise DecodingError()
+
+        return self.upload_image(image_bytes)
+
+    def _upload_to_s3(self, filename: str, data: BytesIO, format: str) -> None:
+        """
+        Upload a file-like object to the S3 bucket.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file in the S3 bucket.
+        data : BytesIO
+            The file data as a file-like object.
+        format : str
+            The content type of the file (e.g., "jpeg").
+        """
         self.s3.upload_fileobj(
             Bucket=self.s3.bucket_name,
-            Key=preview_image_name,
-            Fileobj=preview_buffer,
-            ExtraArgs={"ContentType": f"image/{format}"},
+            Key=filename,
+            Fileobj=data,
+            ExtraArgs={"ContentType": f"image/{format.lower()}"},
         )
-        return ImageSet(original=original_image_name, preview=preview_image_name)
 
     @staticmethod
     def _build_image_name(image_bytes: bytes, format: str) -> str:
