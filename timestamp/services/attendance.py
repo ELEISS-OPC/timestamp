@@ -9,7 +9,7 @@ from sqlalchemy import exc, extract, func
 from sqlalchemy.orm import Session
 
 from timestamp.core.config import env
-from timestamp.db.models import Attendance
+from timestamp.db.models import Attendance, User
 from timestamp.utils import errors
 
 
@@ -198,8 +198,29 @@ class AttendanceService:
         NoRecordsFoundError
             If the user has no attendance records.
         """
-        latest_attendance = self.get_latest_attendance(user_id)
-        return latest_attendance is not None and latest_attendance.time_out is None
+        try:
+            latest_attendance = self.get_latest_attendance(user_id)
+            return latest_attendance.time_out is None
+        except errors.NoRecordsFoundError:
+            if self.does_user_exist(user_id):
+                return False
+            raise errors.UserNotFoundError(user_id=user_id)
+
+    def does_user_exist(self, user_id: int) -> bool:
+        """
+        Check if a user exists.
+
+        Parameters
+        ----------
+        user_id : int
+            Unique identifier of the user.
+
+        Returns
+        -------
+        bool
+            True if the user exists, otherwise False.
+        """
+        return self.db_session.query(User).filter_by(id=user_id).first() is not None
 
     def current_status(
         self, user_id: int
