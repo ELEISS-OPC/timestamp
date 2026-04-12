@@ -170,8 +170,6 @@ async def current_status(
     try:
         status_str = attendance_service.current_status(user_id)
         return attendance_schemas.CurrentStatusResponse(status=status_str)
-    except errors.NoRecordsFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=e.message)
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
