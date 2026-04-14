@@ -50,8 +50,8 @@ CREATE TABLE attendance (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL,
 
-    time_in TIMESTAMP NOT NULL,
-    time_out TIMESTAMP,
+    time_in TIMESTAMPTZ NOT NULL,
+    time_out TIMESTAMPTZ,
 
     time_in_selfie TEXT NOT NULL,
     time_in_selfie_preview TEXT NOT NULL,
