@@ -386,3 +386,53 @@ class AttendanceService:
             raise ValueError(f"Unsupported aggregate type: {aggregate}")
 
         return stats_map[aggregate](scores)
+
+    def get_all_attendance_by_date(self, date: datetime):
+        """
+        Retrieve attendance records for a specific date.
+
+        Parameters
+        ----------
+        date : datetime
+            The date for which to retrieve attendance records.
+
+        Returns
+        -------
+        list[Attendance]
+            Attendance records for the specified date.
+        """
+        result = (
+            self.db_session.query(Attendance)
+            .filter(func.date(Attendance.time_in) == date.date())
+            .order_by(Attendance.time_in.asc())
+            .all()
+        )
+
+        if not result:
+            return []
+
+        return result
+
+    def get_all_attendance_today(self):
+        """
+        Retrieve attendance records for the current day.
+
+        Returns
+        -------
+        list[Attendance]
+            Attendance records for the current day.
+        """
+        today = datetime.now(tz=pytz.timezone(env.TIMEZONE))
+        return self.get_all_attendance_by_date(today)
+
+    def get_all_attendance_yesterday(self):
+        """
+        Retrieve attendance records for the previous day.
+
+        Returns
+        -------
+        list[Attendance]
+            Attendance records for the previous day.
+        """
+        yesterday = datetime.now(tz=pytz.timezone(env.TIMEZONE)) - relativedelta(days=1)
+        return self.get_all_attendance_by_date(yesterday)

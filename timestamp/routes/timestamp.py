@@ -186,13 +186,67 @@ async def get_all_records(
     attendance_service: Attendance_Service, authenticated_user: AuthenticatedUser
 ) -> list[attendance_schemas.AttendanceRecordResponse]:
     """
-    Get information of all users.
+    Get all attendance records of all users.
 
     Access Level: Officer, Admin
     """
     validate_role(authenticated_user.role_id, "o")
     try:
         records = attendance_service.get_all_attendance_of_users()
+        return [
+            attendance_schemas.AttendanceRecordResponse.model_validate(record)
+            for record in records
+        ]
+    except errors.UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )
+
+
+@router.get(
+    "/all-records/today",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
+)
+async def get_all_records_today(
+    attendance_service: Attendance_Service, authenticated_user: AuthenticatedUser
+) -> list[attendance_schemas.AttendanceRecordResponse]:
+    """
+    Get all attendance records of all users for the current day.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    try:
+        records = attendance_service.get_all_attendance_today()
+        return [
+            attendance_schemas.AttendanceRecordResponse.model_validate(record)
+            for record in records
+        ]
+    except errors.UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )
+
+
+@router.get(
+    "/all-records/yesterday",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
+)
+async def get_all_records_yesterday(
+    attendance_service: Attendance_Service, authenticated_user: AuthenticatedUser
+) -> list[attendance_schemas.AttendanceRecordResponse]:
+    """
+    Get all attendance records of all users for the previous day.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    try:
+        records = attendance_service.get_all_attendance_yesterday()
         return [
             attendance_schemas.AttendanceRecordResponse.model_validate(record)
             for record in records
