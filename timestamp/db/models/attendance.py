@@ -2,7 +2,7 @@ from typing import Optional
 
 from sqlalchemy import ForeignKey
 from datetime import datetime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, Default
 
@@ -43,6 +43,7 @@ class Attendance(Base, Default):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user: Mapped["User"] = relationship()  # noqa: F821
     time_in: Mapped[datetime] = mapped_column(nullable=False)
     time_out: Mapped[Optional[datetime]] = mapped_column(nullable=True)
     time_in_selfie: Mapped[str] = mapped_column(nullable=False)

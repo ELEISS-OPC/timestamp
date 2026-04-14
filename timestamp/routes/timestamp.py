@@ -178,6 +178,33 @@ async def current_status(
 
 
 @router.get(
+    "/all-records",
+    status_code=status.HTTP_200_OK,
+    responses={status.HTTP_404_NOT_FOUND: {"model": Detail}},
+)
+async def get_all_records(
+    attendance_service: Attendance_Service, authenticated_user: AuthenticatedUser
+) -> list[attendance_schemas.AttendanceRecordResponse]:
+    """
+    Get information of all users.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    try:
+        records = attendance_service.get_all_attendance_of_users()
+        return [
+            attendance_schemas.AttendanceRecordResponse.model_validate(record)
+            for record in records
+        ]
+    except errors.UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )
+
+
+@router.get(
     "/attendance-history/{user_id}",
     summary="Attendance History of User",
     description="Returns the attendance history of the user.",

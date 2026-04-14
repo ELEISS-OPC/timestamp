@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Literal, Union, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Literal, Union
+
+from .user import UserGetInfoResponse
 
 
 class Coordinates(BaseModel):
@@ -77,6 +79,39 @@ class CompletedShiftsResponse(BaseModel):
     completed_shifts: list[DailyShiftTotalResponse] = Field(
         ...,
         description="List of total completed shifts for each day in the last 3 months",
+    )
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class AttendanceRecordResponse(BaseModel):
+    id: int = Field(..., description="ID of the attendance record")
+    user: UserGetInfoResponse = Field(..., description="Information about the user")
+    time_in: datetime = Field(..., description="The timestamp when the user clocked in")
+    time_out: datetime = Field(
+        ..., description="The timestamp when the user clocked out"
+    )
+    time_in_latitude: float = Field(
+        ..., ge=-90, le=90, description="Latitude of time in location"
+    )
+    time_in_longitude: float = Field(
+        ..., ge=-180, le=180, description="Longitude of time in location"
+    )
+    time_out_latitude: Optional[float] = Field(
+        default=None, ge=-90, le=90, description="Latitude of time out location"
+    )
+    time_out_longitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Longitude of time out location"
+    )
+    time_in_selfie: str = Field(..., description="URL of the time in selfie image")
+    time_in_selfie_preview: str = Field(
+        ..., description="URL of the time in selfie preview image"
+    )
+    time_out_selfie: Optional[str] = Field(
+        default=None, description="URL of the time out selfie image"
+    )
+    time_out_selfie_preview: Optional[str] = Field(
+        default=None, description="URL of the time out selfie preview image"
     )
 
     model_config = ConfigDict(from_attributes=True)

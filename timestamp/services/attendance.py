@@ -149,6 +149,19 @@ class AttendanceService:
 
             raise e
 
+    def get_all_attendance_of_users(self):
+        """
+        Retrieve all attendance records.
+
+        Returns
+        -------
+        list[Attendance]
+            A list of all attendance records ordered by newest time-in.
+        """
+        return (
+            self.db_session.query(Attendance).order_by(Attendance.time_in.desc()).all()
+        )
+
     def get_latest_attendance(self, user_id: int):
         """
         Retrieve the most recent attendance record for a user.
