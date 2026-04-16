@@ -80,6 +80,25 @@ async def create_user(
 
 
 @router.get(
+    "/all",
+    status_code=status.HTTP_200_OK,
+    response_model=list[user_schemas.UserGetInfoResponse],
+)
+async def get_all_users(
+    user_service: User_Service,
+    authenticated_user: AuthenticatedUser,
+) -> list[user_schemas.UserGetInfoResponse]:
+    """
+    Get information for all users.
+
+    Access Level: Officer, Admin
+    """
+    validate_role(authenticated_user.role_id, "o")
+    users = user_service.get_all_users()
+    return [user_schemas.UserGetInfoResponse.model_validate(user) for user in users]
+
+
+@router.get(
     "/{user_id}",
     status_code=status.HTTP_200_OK,
     response_model=user_schemas.UserGetInfoResponse,
