@@ -88,8 +88,8 @@ class AttendanceRecordResponse(BaseModel):
     id: int = Field(..., description="ID of the attendance record")
     user: UserGetInfoResponse = Field(..., description="Information about the user")
     time_in: datetime = Field(..., description="The timestamp when the user clocked in")
-    time_out: datetime = Field(
-        ..., description="The timestamp when the user clocked out"
+    time_out: Optional[datetime] = Field(
+        default=None, description="The timestamp when the user clocked out"
     )
     time_in_latitude: float = Field(
         ..., ge=-90, le=90, description="Latitude of time in location"
